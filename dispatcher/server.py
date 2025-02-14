@@ -75,7 +75,7 @@ def main():
 
     global retry_time, dt
     retry_time = args.retry
-    checkpoint_path = args.checkpoint if args.checkpoint else args.infile + ".checkpoint"
+    checkpoint_path = args.checkpoint if args.checkpoint else args.outfile + ".checkpoint"
     dt = DataTracker(args.infile, args.outfile, checkpoint_path)
     logging.info(f"Server starting with infile={args.infile}, outfile={args.outfile}, checkpoint={checkpoint_path}, retry_time={retry_time}")
     uvicorn.run(app, host=args.host, port=args.port)
