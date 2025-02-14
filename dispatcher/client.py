@@ -7,8 +7,10 @@ class WorkClient:
 
     def get_work(self) -> WorkResponse:
         url = f"{self.server_url}/work"
-        response = requests.get(url)
-        # Instead of raising for 404, we assume that if status is 404 then no work is available.
+        try:
+            response = requests.get(url)
+        except requests.ConnectionError:
+            return WorkResponse(status="server_unavailable")
         if response.status_code == 404:
             return WorkResponse(status="all_work_complete")
         response.raise_for_status()
@@ -18,7 +20,10 @@ class WorkClient:
     def submit_result(self, row_id: int, result: str) -> dict:
         url = f"{self.server_url}/result"
         data = {"row_id": row_id, "result": result}
-        response = requests.post(url, json=data)
+        try:
+            response = requests.post(url, json=data)
+        except requests.ConnectionError:
+            return {"status": "server_unavailable"}
         response.raise_for_status()
         return response.json()
 
