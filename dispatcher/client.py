@@ -1,5 +1,5 @@
 import requests
-from dispatcher.models import WorkItem, ResultSubmission, WorkResponse, Status
+from dispatcher.models import WorkItem, ResultSubmission, WorkResponse, Status, WorkStatus
 
 class WorkClient:
     def __init__(self, server_url: str):
@@ -10,11 +10,15 @@ class WorkClient:
         try:
             response = requests.get(url)
         except requests.ConnectionError:
-            return WorkResponse(status="server_unavailable")
+            # Using the enum for server_unavailable
+            return WorkResponse(status=WorkStatus.SERVER_UNAVAILABLE)
+        
         if response.status_code == 404:
-            return WorkResponse(status="all_work_complete")
+            return WorkResponse(status=WorkStatus.ALL_WORK_COMPLETE)
+        
         response.raise_for_status()
         data = response.json()
+        # Ensure that the 'status' field in the incoming data matches the enum
         return WorkResponse(**data)
 
     def submit_result(self, row_id: int, result: str) -> dict:
@@ -23,7 +27,8 @@ class WorkClient:
         try:
             response = requests.post(url, json=data)
         except requests.ConnectionError:
-            return {"status": "server_unavailable"}
+            return {"status": WorkStatus.SERVER_UNAVAILABLE.value}
+        
         response.raise_for_status()
         return response.json()
 
@@ -33,3 +38,4 @@ class WorkClient:
         response.raise_for_status()
         data = response.json()
         return Status(**data)
+

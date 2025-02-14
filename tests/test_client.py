@@ -1,8 +1,7 @@
 import unittest
 import responses
-import json
 from dispatcher.client import WorkClient
-from dispatcher.models import WorkResponse, WorkItem, Status, ResultSubmission
+from dispatcher.models import WorkResponse, WorkItem, Status, ResultSubmission, WorkStatus
 
 class TestWorkClient(unittest.TestCase):
     def setUp(self):
@@ -23,7 +22,7 @@ class TestWorkClient(unittest.TestCase):
             status=200
         )
         work = self.client.get_work()
-        self.assertEqual(work.status, "OK")
+        self.assertEqual(work.status, WorkStatus.OK)
         self.assertIsNotNone(work.work)
         self.assertEqual(work.work.row_id, 1)
         self.assertEqual(work.work.row_content, "test_content")
@@ -38,7 +37,7 @@ class TestWorkClient(unittest.TestCase):
             status=404
         )
         work = self.client.get_work()
-        self.assertEqual(work.status, "all_work_complete")
+        self.assertEqual(work.status, WorkStatus.ALL_WORK_COMPLETE)
 
     @responses.activate
     def test_get_work_retry(self):
@@ -55,7 +54,7 @@ class TestWorkClient(unittest.TestCase):
             status=200
         )
         work = self.client.get_work()
-        self.assertEqual(work.status, "retry")
+        self.assertEqual(work.status, WorkStatus.RETRY)
         self.assertEqual(work.retry_in, 10)
         self.assertIsNone(work.work)
 

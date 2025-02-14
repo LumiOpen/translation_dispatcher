@@ -1,5 +1,12 @@
 from pydantic import BaseModel
 from typing import Optional
+from enum import Enum
+
+class WorkStatus(str, Enum):
+    OK = "OK"
+    ALL_WORK_COMPLETE = "all_work_complete"
+    RETRY = "retry"
+    SERVER_UNAVAILABLE = "server_unavailable"
 
 class WorkItem(BaseModel):
     row_id: int
@@ -18,7 +25,6 @@ class Status(BaseModel):
     expired_reissues: int
 
 class WorkResponse(BaseModel):
-    status: str  # "OK", "all_work_complete", or "retry"
+    status: WorkStatus
     retry_in: Optional[int] = None  # seconds to wait if status is "retry"
     work: Optional[WorkItem] = None
-
