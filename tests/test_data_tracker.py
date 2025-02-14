@@ -74,7 +74,7 @@ class TestDataTracker(unittest.TestCase):
 
         dt.complete_row(r2[0], "result_2")
         self.assertEqual(dt.last_processed_row, 0)
-        self.assertIn(r2[0], dt.pending)
+        self.assertIn(r2[0], dt.pending_write)
 
         dt.complete_row(r1[0], "result_1")
         self.assertEqual(dt.last_processed_row, 2)

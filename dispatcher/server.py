@@ -58,7 +58,7 @@ def get_status():
         last_processed_row=dt.last_processed_row,
         next_row_id=dt.next_row_id,
         issued=len(dt.issued),
-        pending=len(dt.pending),
+        pending=len(dt.pending_write),
         heap_size=len(dt.issued_heap),
         expired_reissues=dt.expired_reissues
     )
