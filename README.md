@@ -55,34 +55,35 @@ import json
 client = WorkClient("http://127.0.0.1:8000")
 
 while True:
-    work_resp = client.get_work()
+    resp = client.get_work()
     
-    if work_resp.status == WorkStatus.ALL_WORK_COMPLETE:
+    if resp.status == WorkStatus.ALL_WORK_COMPLETE:
         print("All work complete. Exiting.")
         break
         
-    elif work_resp.status == WorkStatus.RETRY:
-        print(f"No work available; retry in {work_resp.retry_in} seconds.")
-        time.sleep(work_resp.retry_in)
+    elif resp.status == WorkStatus.RETRY:
+        print(f"No work available; retry in {resp.retry_in} seconds.")
+        time.sleep(resp.retry_in)
         continue
         
-    elif work_resp.status == WorkStatus.SERVER_UNAVAILABLE:
+    elif resp.status == WorkStatus.SERVER_UNAVAILABLE:
         # The server is not running.
         # The server exits once all work is complete, so let's assume that's the case here.
         print("Server is unavailable. Exiting.")
         break
         
-    elif work_resp.status == WorkStatus.OK and work_resp.work:
-        work_item = work_resp.work_item
-        print(f"Got work: row_id={work_item.row_id}, content='{work_item.row_content}'")
+    elif resp.status == WorkStatus.OK and resp.work:
+        work = resp.work
+        print(f"Got work: row_id={work.row_id}, content='{work.row_content}'")
 
-        # Process the work (replace with actual processing).
-        # NOTE: work_item.row_content is still plain text here, if it's json
-        # you'll need to parse it.
-        #row_content = json.loads(work_item.row_content)
-        result = f"processed_{work_item.row_id}"
+        # Process the work
+        # NOTE: work.row_content is still plain text here. If it contains JSON,
+        # you'll still need to parse it.
+        #content = json.loads(work.row_content)
+        # do actual work here
+        result = f"processed_{work.row_id}"
 
-        submit_resp = client.submit_result(work_item.row_id, result)
-        print(f"Submitted result for row {work_item.row_id}: {submit_resp}")
+        submit_resp = client.submit_result(work.row_id, result)
+        print(f"Submitted result for row {work.row_id}: {submit_resp}")
 
 ```
