@@ -73,12 +73,15 @@ while True:
         break
         
     elif work_resp.status == WorkStatus.OK and work_resp.work:
-        # NOTE: work_resp.work is still plain text here.  if it json, you will still need
-        # to parse it.
-        work_item = json.loads(work_resp.work)
+        work_item = work_resp.work_item
         print(f"Got work: row_id={work_item.row_id}, content='{work_item.row_content}'")
+
         # Process the work (replace with actual processing).
-        result = f"processed_{work_item.row_content}"
+        # NOTE: work_item.row_content is still plain text here, if it's json
+        # you'll need to parse it.
+        #row_content = json.loads(work_item.row_content)
+        result = f"processed_{work_item.row_id}"
+
         submit_resp = client.submit_result(work_item.row_id, result)
         print(f"Submitted result for row {work_item.row_id}: {submit_resp}")
 
