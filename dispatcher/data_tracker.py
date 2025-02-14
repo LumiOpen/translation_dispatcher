@@ -3,6 +3,7 @@ import time
 import json
 import logging
 import heapq
+import threading
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,6 +36,8 @@ class DataTracker:
         self.issued = {}            # row_id -> row_content
         self.issued_heap = []       # min-heap of (timestamp, row_id)
         self.pending = {}           # row_id -> result
+
+        self._state_lock = threading.Lock()
 
         self.infile = open(self.infile_path, "r")
         self.outfile = open(self.outfile_path, "a+")
@@ -78,55 +81,57 @@ class DataTracker:
         return remaining == 0 and len(self.pending) == 0
 
     def get_next_row(self):
-        now = time.time()
-        while self.issued_heap:
-            heap_ts, row_id = self.issued_heap[0]
-            if row_id not in self.issued:
-                heapq.heappop(self.issued_heap)
-                continue
-            if now - heap_ts > self.work_timeout:
-                heapq.heappop(self.issued_heap)
-                new_ts = now
-                heapq.heappush(self.issued_heap, (new_ts, row_id))
-                self.expired_reissues += 1
-                return row_id, self.issued[row_id]
-            else:
-                break
+        with self._state_lock:
+            now = time.time()
+            while self.issued_heap:
+                heap_ts, row_id = self.issued_heap[0]
+                if row_id not in self.issued:
+                    heapq.heappop(self.issued_heap)
+                    continue
+                if now - heap_ts > self.work_timeout:
+                    heapq.heappop(self.issued_heap)
+                    new_ts = now
+                    heapq.heappush(self.issued_heap, (new_ts, row_id))
+                    self.expired_reissues += 1
+                    return row_id, self.issued[row_id]
+                else:
+                    break
 
-        line = self.infile.readline()
-        if not line:
-            return None  # End of file.
-        row_content = line.rstrip("\n")
-        row_id = self.next_row_id
-        self.next_row_id += 1
-        ts = now
-        self.issued[row_id] = row_content
-        heapq.heappush(self.issued_heap, (ts, row_id))
-        return row_id, row_content
+            line = self.infile.readline()
+            if not line:
+                return None  # End of file.
+            row_content = line.rstrip("\n")
+            row_id = self.next_row_id
+            self.next_row_id += 1
+            ts = now
+            self.issued[row_id] = row_content
+            heapq.heappush(self.issued_heap, (ts, row_id))
+            return row_id, row_content
 
     def complete_row(self, row_id, result):
-        if row_id <= self.last_processed_row or row_id in self.pending:
-            logging.warning(f"Duplicate completion for row {row_id}; discarding.")
-            return
-        if row_id not in self.issued:
-            logging.warning(f"Completion for row {row_id} not issued; discarding.")
-            return
-        del self.issued[row_id]
-        if row_id == self.last_processed_row + 1:
-            self._write_result(row_id, result)
-            self.last_processed_row = row_id
-            self._flush_pending()
-        else:
-            self.pending[row_id] = result
-
-        now = time.time()
-        if now - self.last_checkpoint_time >= self.checkpoint_interval:
-            self._write_checkpoint()
-            self.last_checkpoint_time = now
-            logging.info(f"Checkpoint: last_processed_row={self.last_processed_row}, "
-                         f"input_offset={self.infile.tell()}, output_offset={self.outfile.tell()}, "
-                         f"issued={len(self.issued)}, pending={len(self.pending)}, "
-                         f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")
+        with self._state_lock:
+            if row_id <= self.last_processed_row or row_id in self.pending:
+                logging.warning(f"Duplicate completion for row {row_id}; discarding.")
+                return
+            if row_id not in self.issued:
+                logging.warning(f"Completion for row {row_id} not issued; discarding.")
+                return
+            del self.issued[row_id]
+            if row_id == self.last_processed_row + 1:
+                self._write_result(row_id, result)
+                self.last_processed_row = row_id
+                self._flush_pending()
+            else:
+                self.pending[row_id] = result
+    
+            now = time.time()
+            if now - self.last_checkpoint_time >= self.checkpoint_interval:
+                self._write_checkpoint()
+                self.last_checkpoint_time = now
+                logging.info(f"Checkpoint: last_processed_row={self.last_processed_row}, "
+                            f"input_offset={self.infile.tell()}, output_offset={self.outfile.tell()}, "
+                            f"issued={len(self.issued)}, pending={len(self.pending)}, "
+                            f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")
 
     def _flush_pending(self):
         next_expected = self.last_processed_row + 1
@@ -155,6 +160,7 @@ class DataTracker:
         os.rename(temp_path, self.checkpoint_path)
 
     def close(self):
-        self._write_checkpoint()
-        self.infile.close()
-        self.outfile.close()
+        with self._state_lock:
+            self._write_checkpoint()
+            self.infile.close()
+            self.outfile.close()
