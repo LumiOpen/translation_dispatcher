@@ -50,6 +50,7 @@ dispatcher-server --infile path/to/input.jsonl --outfile path/to/output.jsonl
 import time
 from dispatcher.client import WorkClient
 from dispatcher.models import WorkStatus
+import json
 
 client = WorkClient("http://127.0.0.1:8000")
 
@@ -72,7 +73,9 @@ while True:
         break
         
     elif work_resp.status == WorkStatus.OK and work_resp.work:
-        work_item = work_resp.work
+        # NOTE: work_resp.work is still plain text here.  if it json, you will still need
+        # to parse it.
+        work_item = json.loads(work_resp.work)
         print(f"Got work: row_id={work_item.row_id}, content='{work_item.row_content}'")
         # Process the work (replace with actual processing).
         result = f"processed_{work_item.row_content}"
