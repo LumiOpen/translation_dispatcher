@@ -1,12 +1,22 @@
-# Dispatcher
+### Dispatcher
 
+Tool to reliably dispatch work from a large line-oriented file (jsonl) for
+distributed workers.
 
+# To Develop
 
 ```bash
-python -m dispatcher.server --infile path/to/input.jsonl --outfile path/to/output.jsonl
+pip install -e .[dev]
 ```
 
-From clients:
+# To run the server
+```bash
+python -m dispatcher.server --infile path/to/input.jsonl --outfile path/to/output.jsonl
+# or
+dispatcher-server --infile path/to/input.jsonl --outfile path/to/output.jsonl
+```
+
+# Client example
 ```python
 from dispatcher.client import WorkClient
 import time
