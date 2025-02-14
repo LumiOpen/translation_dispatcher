@@ -23,8 +23,8 @@ class DataTracker:
         self.work_timeout = work_timeout
         self.checkpoint_interval = checkpoint_interval
 
-        self.last_processed_row = -1
-        self.next_row_id = 0
+        self.last_processed_row = -1   # Last contiguous row written.
+        self.next_row_id = 0           # Next row id to assign.
 
         self.input_offset = 0
         self.output_offset = 0
@@ -41,6 +41,7 @@ class DataTracker:
         self._load_checkpoint()
 
     def _load_checkpoint(self):
+        # If a checkpoint file exists and is non-empty, load its state.
         if os.path.exists(self.checkpoint_path) and os.path.getsize(self.checkpoint_path) > 0:
             try:
                 with open(self.checkpoint_path, "r") as f:
@@ -52,10 +53,10 @@ class DataTracker:
             self.output_offset = cp.get("output_offset", 0)
             self.infile.seek(self.input_offset)
             self.outfile.seek(self.output_offset)
-            # Reconcile extra output lines: for each extra line after checkpoint, 
-            # discard one input line.
+            # Reconcile extra output lines:
             extra_lines = self.outfile.readlines()
             extra_count = len(extra_lines)
+            # For each extra line in the output, discard one line from the input.
             for _ in range(extra_count):
                 self.infile.readline()
             self.input_offset = self.infile.tell()
@@ -71,9 +72,8 @@ class DataTracker:
 
     def all_work_complete(self) -> bool:
         """
-        Returns True if the input file is exhausted and there is no pending work.
+        Returns True if the input file is exhausted and no pending work remains.
         """
-        # Determine if there are remaining bytes in the input file.
         remaining = os.stat(self.infile_path).st_size - self.infile.tell()
         return remaining == 0 and len(self.pending) == 0
 
@@ -95,7 +95,7 @@ class DataTracker:
 
         line = self.infile.readline()
         if not line:
-            return None
+            return None  # End of file.
         row_content = line.rstrip("\n")
         row_id = self.next_row_id
         self.next_row_id += 1

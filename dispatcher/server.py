@@ -7,13 +7,15 @@ from dispatcher.data_tracker import DataTracker
 
 app = FastAPI()
 
-dt = None  # Global DataTracker instance
+# Global DataTracker instance and retry_time variable.
+dt = None
+retry_time = 300  # default retry time in seconds
 
 @app.on_event("startup")
 def startup_event():
     global dt
     if dt is None:
-        logging.error("DataTracker not initialized!")
+        logging.error("DataTracker is not initialized!")
         raise Exception("DataTracker is not initialized")
 
 @app.on_event("shutdown")
@@ -24,13 +26,13 @@ def shutdown_event():
 
 @app.get("/work", response_model=WorkResponse)
 def get_work():
-    global dt
+    global dt, retry_time
     if dt.all_work_complete():
         return WorkResponse(status="all_work_complete")
     work = dt.get_next_row()
     if work is None:
-        # Input file exhausted but pending work exists; ask client to retry.
-        return WorkResponse(status="retry", retry_in=5)
+        # No new work available now, but not all work complete → ask client to retry.
+        return WorkResponse(status="retry", retry_in=retry_time)
     row_id, row_content = work
     return WorkResponse(status="OK", work=WorkItem(row_id=row_id, row_content=row_content))
 
@@ -49,7 +51,7 @@ def get_status():
         issued=len(dt.issued),
         pending=len(dt.pending),
         heap_size=len(dt.issued_heap),
-        expired_reissues=dt.expired_reissues
+        expired_reissues=dt.expired_reissues,
     )
 
 def main():
@@ -57,14 +59,19 @@ def main():
     parser.add_argument("--infile", type=str, required=True, help="Input file path")
     parser.add_argument("--outfile", type=str, required=True, help="Output file path")
     parser.add_argument("--checkpoint", type=str, help="Checkpoint file path")
+    parser.add_argument("--retry", type=int, default=300, help="Retry time in seconds (default: 300)")
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Host")
     parser.add_argument("--port", type=int, default=8000, help="Port")
     args = parser.parse_args()
 
+    global retry_time
+    retry_time = args.retry
+
     checkpoint_path = args.checkpoint if args.checkpoint else args.infile + ".checkpoint"
+
     global dt
     dt = DataTracker(args.infile, args.outfile, checkpoint_path)
-    logging.info(f"Server starting with infile={args.infile}, outfile={args.outfile}, checkpoint={checkpoint_path}")
+    logging.info(f"Server starting with infile={args.infile}, outfile={args.outfile}, checkpoint={checkpoint_path}, retry_time={retry_time}")
     uvicorn.run(app, host=args.host, port=args.port)
 
 if __name__ == "__main__":

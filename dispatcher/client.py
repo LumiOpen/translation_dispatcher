@@ -8,6 +8,9 @@ class WorkClient:
     def get_work(self) -> WorkResponse:
         url = f"{self.server_url}/work"
         response = requests.get(url)
+        # Instead of raising for 404, we assume that if status is 404 then no work is available.
+        if response.status_code == 404:
+            return WorkResponse(status="all_work_complete")
         response.raise_for_status()
         data = response.json()
         return WorkResponse(**data)
@@ -25,4 +28,3 @@ class WorkClient:
         response.raise_for_status()
         data = response.json()
         return Status(**data)
-
