@@ -1,4 +1,4 @@
-### Dispatcher
+# Dispatcher
 
 Simple library to dispatch work from a large line-oriented file (jsonl) for
 distributed workers without pre-apportioning work.
@@ -32,20 +32,20 @@ Probably we should time out incomplete work after a certain number of retries
 and write it to a rejected file, but that is not yet implemented.
 
 
-# To Develop
+## To Develop
 
 ```bash
 pip install -e .[dev]
 ```
 
-# To run the server
+## To run the server
 ```bash
 python -m dispatcher.server --infile path/to/input.jsonl --outfile path/to/output.jsonl
 # or
 dispatcher-server --infile path/to/input.jsonl --outfile path/to/output.jsonl
 ```
 
-# Client example
+## Client example
 ```python
 import time
 from dispatcher.client import WorkClient
