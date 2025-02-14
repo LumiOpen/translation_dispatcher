@@ -39,7 +39,6 @@ class TestDataTracker(unittest.TestCase):
                          work_timeout=WORK_TIMEOUT, checkpoint_interval=CHECKPOINT_INTERVAL)
         self.assertEqual(dt.last_processed_row, -1)
         self.assertEqual(dt.input_offset, 0)
-        self.assertEqual(dt.output_offset, 0)
         self.assertEqual(dt.next_row_id, 0)
         dt.close()
 
@@ -163,11 +162,11 @@ class TestDataTracker(unittest.TestCase):
         dt1.complete_row(r3[0], "result_3")
         r4 = dt1.get_next_row()  # row 4
         dt1.complete_row(r4[0], "result_4")
-        dt1.close()
-        # Final checkpoint should reflect the final state.
+
+        # checkpoint should reflect the earlier state
         with open(self.checkpoint, "r") as f:
             cp = json.load(f)
-        self.assertEqual(cp.get("last_processed_row"), 4)
+        self.assertEqual(cp.get("last_processed_row"), 2)
         
         # Now load a new tracker and ensure it reconciles correctly.
         dt2 = DataTracker(self.infile.name, self.outfile.name, self.checkpoint,
@@ -177,6 +176,43 @@ class TestDataTracker(unittest.TestCase):
         r5 = dt2.get_next_row()
         self.assertEqual(r5[0], 5)
         self.assertEqual(r5[1], "row_content_5")
+        dt2.close()
+
+    def test_load_from_checkpoint_with_extra_rows_unwritten(self):
+        """
+        Process some rows, then process additional rows after the checkpoint was written.
+        Upon loading, the DataTracker should:
+          - Seek to the saved output offset,
+          - For each extra output line, read and discard one input line,
+          - Update last_processed_row and next_row_id accordingly.
+        """
+        dt1 = DataTracker(self.infile.name, self.outfile.name, self.checkpoint,
+                          work_timeout=WORK_TIMEOUT, checkpoint_interval=CHECKPOINT_INTERVAL)
+        r0 = dt1.get_next_row()  # row 0
+        dt1.complete_row(r0[0], "result_0")
+        r1 = dt1.get_next_row()  # row 1
+        dt1.complete_row(r1[0], "result_1")
+        r2 = dt1.get_next_row()  # row 2
+        dt1.complete_row(r2[0], "result_2")
+        # Write a checkpoint now; it records last_processed_row==2.
+        dt1._write_checkpoint()
+        # Now process additional rows.
+        r3 = dt1.get_next_row()  # row 3
+        r4 = dt1.get_next_row()  # row 4
+
+        # checkpoint should reflect the earlier state
+        with open(self.checkpoint, "r") as f:
+            cp = json.load(f)
+        self.assertEqual(cp.get("last_processed_row"), 2)
+
+        # Now load a new tracker and it continues from the last written record
+        dt2 = DataTracker(self.infile.name, self.outfile.name, self.checkpoint,
+                          work_timeout=WORK_TIMEOUT, checkpoint_interval=CHECKPOINT_INTERVAL)
+        self.assertEqual(dt2.last_processed_row, 2)
+        self.assertEqual(dt2.next_row_id, 3)
+        r5 = dt2.get_next_row()
+        self.assertEqual(r5[0], 3)
+        self.assertEqual(r5[1], "row_content_3")
         dt2.close()
 
 if __name__ == "__main__":

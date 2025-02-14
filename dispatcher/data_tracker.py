@@ -26,14 +26,12 @@ class DataTracker:
 
         self.last_processed_row = -1   # Last contiguous row written.
         self.next_row_id = 0           # Next row id to assign.
-
-        self.input_offset = 0
-        self.output_offset = 0
+        self.input_offset = 0          # Start of next row after last recorded work
 
         self.last_checkpoint_time = time.time()
         self.expired_reissues = 0
 
-        self.issued = {}            # row_id -> row_content
+        self.issued = {}            # row_id -> (row_content, input_offset)
         self.issued_heap = []       # min-heap of (timestamp, row_id); uses lazy deletion
         self.pending_write = {}     # row_id -> result
 
@@ -53,31 +51,26 @@ class DataTracker:
                 cp = {}
             self.last_processed_row = cp.get("last_processed_row", -1)
             self.input_offset = cp.get("input_offset", 0)
-            self.output_offset = cp.get("output_offset", 0)
             self.infile.seek(self.input_offset)
-            self.outfile.seek(self.output_offset)
+            self.outfile.seek(cp.get("output_offset", 0))
 
             # Any lines after the output_offset in in output_file have been
             # completed after the checkpoint is written, so we need to move
             # past them in both the outfile and the infile
             extra_lines = self.outfile.readlines()
             extra_count = len(extra_lines)
-            self.output_offset = self.outfile.tell()
 
             # For each extra line in the output, discard one line from the input.
             for _ in range(extra_count):
                 self.infile.readline()
-            self.input_offset = self.infile.tell()
 
             self.last_processed_row += extra_count
             self.next_row_id = self.last_processed_row + 1
 
             logging.info(f"Loaded checkpoint: last_processed_row={self.last_processed_row}, "
-                         f"input_offset={self.input_offset}, output_offset={self.output_offset}")
+                         f"input_offset={self.input_offset}, output_offset={self.outfile.tell()}")
         else:
             self.last_processed_row = -1
-            self.input_offset = 0
-            self.output_offset = 0
             self.next_row_id = 0
             logging.info("No checkpoint found; starting fresh.")
 
@@ -101,7 +94,8 @@ class DataTracker:
                 # see if the oldest iten in minheap needs to be reissued
                 if now - heap_ts > self.work_timeout:
                     heapq.heappop(self.issued_heap)
-                    return self._issue_work(now, self.issued[row_id], row_id)
+                    content, input_offset = self.issued[row_id]
+                    return self._issue_work(now, content, input_offset, row_id)
                 break
 
             # get new work
@@ -109,8 +103,9 @@ class DataTracker:
             if not line:
                 return None  # End of file.
             row_content = line.rstrip("\n")
+            input_offset = self.infile.tell()
 
-            return self._issue_work(now, row_content)
+            return self._issue_work(now, row_content, input_offset)
 
     def complete_row(self, row_id, result):
         with self._state_lock:
@@ -120,11 +115,11 @@ class DataTracker:
             if row_id not in self.issued:
                 logging.warning(f"Completion for row {row_id} not issued; discarding.")
                 return
-            del self.issued[row_id]
             if self._can_write(row_id):
                 self._write_result(row_id, result)
                 self._flush_pending()
             else:
+                _, input_offset = self.issued[row_id]
                 self.pending_write[row_id] = result
 
             now = time.time()
@@ -136,11 +131,11 @@ class DataTracker:
                              f"issued={len(self.issued)}, pending={len(self.pending_write)}, "
                              f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")
 
-    def _issue_work(self, when, row_content, row_id=None):
+    def _issue_work(self, when, row_content, input_offset, row_id=None):
         if row_id is None:
             row_id = self.next_row_id
             self.next_row_id += 1
-            self.issued[row_id] = row_content
+            self.issued[row_id] = (row_content, input_offset)
         else:
             # this is reissued work
             self.expired_reissues += 1
@@ -160,9 +155,15 @@ class DataTracker:
             next_expected += 1
 
     def _write_result(self, row_id, result):
+        # we always update the input offset when we write a result, because we
+        # always know it is the latest point input file that has been fully
+        # processed.
+        _, input_offset = self.issued[row_id]
+        del self.issued[row_id]
+        self.input_offset = input_offset
+
         self.outfile.write(result + "\n")
         self.outfile.flush()
-        self.output_offset = self.outfile.tell()
         self.last_processed_row = row_id
 
 
