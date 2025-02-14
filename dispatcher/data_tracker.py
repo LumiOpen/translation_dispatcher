@@ -67,11 +67,15 @@ class DataTracker:
             self.next_row_id = self.last_processed_row + 1
             self.outfile.seek(0, os.SEEK_END)
             self.output_offset = self.outfile.tell()
+
+            logging.info(f"Loaded checkpoint: last_processed_row={self.last_processed_row}, "
+                         f"input_offset={self.input_offset}, output_offset={self.output_offset}")
         else:
             self.last_processed_row = -1
             self.input_offset = 0
             self.output_offset = 0
             self.next_row_id = 0
+            logging.info("No checkpoint found; starting fresh.")
 
     def all_work_complete(self) -> bool:
         """
@@ -123,15 +127,15 @@ class DataTracker:
                 self._flush_pending()
             else:
                 self.pending[row_id] = result
-    
+
             now = time.time()
             if now - self.last_checkpoint_time >= self.checkpoint_interval:
                 self._write_checkpoint()
                 self.last_checkpoint_time = now
                 logging.info(f"Checkpoint: last_processed_row={self.last_processed_row}, "
-                            f"input_offset={self.infile.tell()}, output_offset={self.outfile.tell()}, "
-                            f"issued={len(self.issued)}, pending={len(self.pending)}, "
-                            f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")
+                             f"input_offset={self.infile.tell()}, output_offset={self.outfile.tell()}, "
+                             f"issued={len(self.issued)}, pending={len(self.pending)}, "
+                             f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")
 
     def _flush_pending(self):
         next_expected = self.last_processed_row + 1
@@ -161,6 +165,11 @@ class DataTracker:
 
     def close(self):
         with self._state_lock:
+            # Write a final checkpoint and log status before shutting down.
             self._write_checkpoint()
+            logging.info(f"Final checkpoint written: last_processed_row={self.last_processed_row}, "
+                         f"input_offset={self.infile.tell()}, output_offset={self.outfile.tell()}, "
+                         f"issued={len(self.issued)}, pending={len(self.pending)}, "
+                         f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")
             self.infile.close()
             self.outfile.close()
