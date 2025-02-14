@@ -1,7 +1,36 @@
 ### Dispatcher
 
-Tool to reliably dispatch work from a large line-oriented file (jsonl) for
-distributed workers.
+Simple library to dispatch work from a large line-oriented file (jsonl) for
+distributed workers without pre-apportioning work.
+
+Dispatcher is ideal for batch inference workloads where individual requests
+may take varying amounts of time, but you want to keep all workers busy and
+avoid the long tails that you might run into by dividing the work up
+beforehand.
+
+Dispatcher guarantees that each completed work item will be persisted to disk
+only once, but items may be processed more than once, so it is inappropriate
+for work that changes state in external systems or is otherwise not idempotent.
+
+Work is checkpointed so that if a job ends unexpectedly, work can begin where
+it left off with minimal lost work (specifically, only work which is cached
+waiting to be written because it has been completed out of order will be lost.)
+
+In order to work efficiently with large data files, ensure each item is written
+only once, and avoid costly scans and reconciliation on restart, the
+dispatcher works on a line-per-line basis, each nth line of input will
+correspond with the nth line of output. On restarting, we only need to
+determine where we left off to begin again.
+
+This means the dispatcher must cache out of order work until the work can be
+written contiguously in the output file. Work that has been issued but not
+completed will be reissued again after a timeout to avoid unbounded memory
+growth, but in certain pathological situations (a "query of death") this could
+still cause an out of memory situation.
+
+Probably we should time out incomplete work after a certain number of retries
+and write it to a rejected file, but that is not yet implemented.
+
 
 # To Develop
 
