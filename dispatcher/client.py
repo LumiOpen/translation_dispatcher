@@ -3,6 +3,8 @@ from dispatcher.models import WorkItem, ResultSubmission, WorkResponse, Status, 
 
 class WorkClient:
     def __init__(self, server_url: str):
+        if not server_url.startswith("http://"):
+            server_url = "http://" + server_url
         self.server_url = server_url.rstrip("/")
 
     def get_work(self) -> WorkResponse:
