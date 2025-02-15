@@ -37,8 +37,12 @@ class DataTracker:
 
         self._state_lock = threading.Lock()
 
-        self.infile = open(self.infile_path, "r")
-        self.outfile = open(self.outfile_path, "a+")
+        # NOTE: we open these files in binary mode because os.seek/os.tell do
+        # not actually represent byte offsets in text files, but an opque
+        # internal figure, and we want to be able to compare offset to file
+        # size.
+        self.infile = open(self.infile_path, "rb")
+        self.outfile = open(self.outfile_path, "ab+")
         self._load_checkpoint()
 
     def _load_checkpoint(self):
@@ -102,6 +106,7 @@ class DataTracker:
             line = self.infile.readline()
             if not line:
                 return None  # End of file.
+            line = line.decode("utf-8")
             row_content = line.rstrip("\n")
             input_offset = self.infile.tell()
 
@@ -162,7 +167,8 @@ class DataTracker:
         del self.issued[row_id]
         self.input_offset = input_offset
 
-        self.outfile.write(result + "\n")
+        line = result + "\n"
+        self.outfile.write(line.encode("utf-8"))
         self.outfile.flush()
         self.last_processed_row = row_id
 
