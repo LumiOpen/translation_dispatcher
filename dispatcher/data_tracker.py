@@ -87,10 +87,10 @@ class DataTracker:
 
 
     def get_work_batch(self, batch_size=1):
+        batch = []
         with self._state_lock:
             now = time.time()
             # check first for expired work needing to be reissued
-            batch = []
             while self.issued_heap and len(batch) < batch_size:
                 heap_ts, work_id = self.issued_heap[0]
                 # lazy deleteion
