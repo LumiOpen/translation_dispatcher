@@ -1,43 +1,60 @@
 import requests
-from dispatcher.models import WorkItem, ResultSubmission, WorkResponse, Status, WorkStatus
+from typing import List
+from dispatcher.models import (
+    WorkItem,
+    WorkStatus,
+    BatchWorkResponse,
+    BatchResultSubmission,
+    BatchResultResponse
+)
 
 class WorkClient:
     def __init__(self, server_url: str):
-        if not server_url.startswith("http://"):
+        if not (server_url.startswith("http://") or server_url.startswith("https://")):
             server_url = "http://" + server_url
         self.server_url = server_url.rstrip("/")
 
-    def get_work(self) -> WorkResponse:
+    def get_work(self, batch_size: int = 1) -> BatchWorkResponse:
+        """
+        Fetch up to batch_size work items from the server.
+        Return a BatchWorkResponse with:
+          - status: (OK, RETRY, ALL_WORK_COMPLETE, or SERVER_UNAVAILABLE)
+          - retry_in: int if status=RETRY
+          - items: list of WorkItem (if status=OK)
+        """
         url = f"{self.server_url}/work"
+        params = {"batch_size": batch_size}
+
         try:
-            response = requests.get(url)
+            resp = requests.get(url, params=params)
         except requests.ConnectionError:
-            # Using the enum for server_unavailable
-            return WorkResponse(status=WorkStatus.SERVER_UNAVAILABLE)
-        
-        if response.status_code == 404:
-            return WorkResponse(status=WorkStatus.ALL_WORK_COMPLETE)
-        
-        response.raise_for_status()
-        data = response.json()
-        # Ensure that the 'status' field in the incoming data matches the enum
-        return WorkResponse(**data)
+            # Return a "server unavailable" response
+            return BatchWorkResponse(status=WorkStatus.SERVER_UNAVAILABLE, items=[])
 
-    def submit_result(self, row_id: int, result: str) -> dict:
-        url = f"{self.server_url}/result"
-        data = {"row_id": row_id, "result": result}
+        if resp.status_code == 404:
+            # Not typical unless your server is returning 404 for no work
+            return BatchWorkResponse(status=WorkStatus.ALL_WORK_COMPLETE, items=[])
+
+        resp.raise_for_status()
+        data = resp.json()
+        return BatchWorkResponse(**data)
+
+    def submit_results(self, items: List[WorkItem]) -> BatchResultResponse:
+        """
+        Post a list of WorkItem objects (with .result set) to /results.
+        Returns a BatchResultResponse with:
+          - status: OK or SERVER_UNAVAILABLE
+          - count: number of items processed
+        """
+        url = f"{self.server_url}/results"
+        # Build the JSON body
+        submission = BatchResultSubmission(items=items)
+
         try:
-            response = requests.post(url, json=data)
+            resp = requests.post(url, json=submission.dict())
         except requests.ConnectionError:
-            return {"status": WorkStatus.SERVER_UNAVAILABLE.value}
-        
-        response.raise_for_status()
-        return response.json()
+            return BatchResultResponse(status=WorkStatus.SERVER_UNAVAILABLE, count=0)
 
-    def get_status(self) -> Status:
-        url = f"{self.server_url}/status"
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        return Status(**data)
-
+        resp.raise_for_status()
+        data = resp.json()
+        return BatchResultResponse(**data)

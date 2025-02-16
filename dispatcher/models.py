@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from enum import Enum
 
 class WorkStatus(str, Enum):
@@ -9,22 +9,23 @@ class WorkStatus(str, Enum):
     SERVER_UNAVAILABLE = "server_unavailable"
 
 class WorkItem(BaseModel):
-    row_id: int
-    row_content: str
+    work_id: int
+    content: str
+    result: Optional[str] = None  # This can be filled in after processing.
 
-class ResultSubmission(BaseModel):
-    row_id: int
-    result: str
+    def set_result(self, new_result: str):
+        """Optional convenience method to store a result directly on the item."""
+        self.result = new_result
 
-class Status(BaseModel):
-    last_processed_row: int
-    next_row_id: int
-    issued: int
-    pending: int
-    heap_size: int
-    expired_reissues: int
-
-class WorkResponse(BaseModel):
+class BatchWorkResponse(BaseModel):
     status: WorkStatus
-    retry_in: Optional[int] = None  # seconds to wait if status is "retry"
-    work: Optional[WorkItem] = None
+    retry_in: Optional[int] = None
+    items: List[WorkItem] = []
+
+class BatchResultSubmission(BaseModel):
+    """When submitting multiple results, just reuse the same WorkItem structure."""
+    items: List[WorkItem]
+
+class BatchResultResponse(BaseModel):
+    status: WorkStatus
+    count: int  # how many items were processed

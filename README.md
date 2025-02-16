@@ -55,7 +55,7 @@ import json
 client = WorkClient("http://127.0.0.1:8000")
 
 while True:
-    resp = client.get_work()
+    resp = client.get_work(batch_size=5)
     
     if resp.status == WorkStatus.ALL_WORK_COMPLETE:
         print("All work complete. Exiting.")
@@ -72,18 +72,22 @@ while True:
         print("Server is unavailable. Exiting.")
         break
         
-    elif resp.status == WorkStatus.OK and resp.work:
-        work = resp.work
-        print(f"Got work: row_id={work.row_id}, content='{work.row_content}'")
+    elif resp.status == WorkStatus.OK:
+        for work in resp.items:
 
-        # Process the work
-        # NOTE: work.row_content is still plain text here. If it contains JSON,
-        # you'll still need to parse it.
-        #content = json.loads(work.row_content)
-        # do actual work here
-        result = f"processed_{work.row_id}"
+            print(f"Got work: work_id={work.work_id}, content='{work.content}'")
 
-        submit_resp = client.submit_result(work.row_id, result)
-        print(f"Submitted result for row {work.row_id}: {submit_resp}")
+            # Process the work
+            # NOTE: work.content is still plain text here. If it contains JSON,
+            # you'll still need to parse it.
+            #content = json.loads(work.content)
+            # do actual work here
+            work.set_result(f"processed_{work.work_id}")
 
+            # TODO error check here??
+            submit_resp = client.submit_result(resp.items)
+            print(f"Submitted {submit_resp.count} items, status={submit_resp.status}")
+    else:
+        print(f"Unexpected status: {resp.status}")
+        break
 ```
