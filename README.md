@@ -73,7 +73,8 @@ while True:
         break
         
     elif resp.status == WorkStatus.OK:
-        for work in resp.items:
+        batch = resp.items
+        for work in batch:
 
             print(f"Got work: work_id={work.work_id}, content='{work.content}'")
 
@@ -84,9 +85,9 @@ while True:
             # do actual work here
             work.set_result(f"processed_{work.work_id}")
 
-            # TODO error check here??
-            submit_resp = client.submit_result(resp.items)
-            print(f"Submitted {submit_resp.count} items, status={submit_resp.status}")
+        # TODO error check here??
+        submit_resp = client.submit_result(batch)
+        print(f"Submitted {submit_resp.count} items, status={submit_resp.status}")
     else:
         print(f"Unexpected status: {resp.status}")
         break
