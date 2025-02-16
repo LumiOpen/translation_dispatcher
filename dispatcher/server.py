@@ -41,49 +41,29 @@ def get_work(batch_size: int = Query(1, ge=1)):
     global dt, retry_time
     if dt.all_work_complete():
         return BatchWorkResponse(status=WorkStatus.ALL_WORK_COMPLETE, items=[])
-
-    items = []
-    for _ in range(batch_size):
-        row = dt.get_next_row()
-        if row is None:
-            # No more input lines
-            break
-        work_id, content = row
-        items.append(WorkItem(work_id=work_id, content=content))
-
-    if not items:
-        # We read no new lines
-        if dt.all_work_complete():
-            return BatchWorkResponse(status=WorkStatus.ALL_WORK_COMPLETE, items=[])
-        else:
-            # The input is exhausted but pending work not done => "retry"
-            return BatchWorkResponse(status=WorkStatus.RETRY, retry_in=retry_time)
-
-    # otherwise, success
-    return BatchWorkResponse(status=WorkStatus.OK, items=items)
+        
+    batch = dt.get_work_batch(batch_size)
+    if batch:
+        items = [WorkItem(work_id=i[0], content=i[1]) for i in batch]
+        return BatchWorkResponse(status=WorkStatus.OK, items=items)
+    else:
+        # The input is exhausted but pending work not done => "retry"
+        return BatchWorkResponse(status=WorkStatus.RETRY, retry_in=retry_time)
 
 @app.post("/results", response_model=BatchResultResponse)
 def submit_results(batch: BatchResultSubmission):
-    """
-    Accept a list of WorkItem objects. For each item that includes work_id and result,
-    call DataTracker.complete_row(work_id, result).
-    """
     global dt
-    success_count = 0
-    for wi in batch.items:
-        if wi.result is not None:
-            dt.complete_row(wi.work_id, wi.result)
-            success_count += 1
-        else:
-            logging.warning(f"WorkItem work_id={wi.work_id} had no result, ignoring.")
+    # TODO how do i get success count?
+    success_count = len(batch.items)
+    dt.complete_work_batch([(i.work_id, i.result) for i in batch.items])
     return BatchResultResponse(status=WorkStatus.OK, count=success_count)
 
 @app.get("/status")
 def get_status():
     global dt
     return {
-        "last_processed_row": dt.last_processed_row,
-        "next_work_id": dt.next_row_id,
+        "last_processed_work_id": dt.last_processed_work_id,
+        "next_work_id": dt.next_work_id,
         "issued": len(dt.issued),
         "pending": len(dt.pending_write),
         "heap_size": len(dt.issued_heap),

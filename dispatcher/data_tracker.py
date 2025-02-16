@@ -24,16 +24,16 @@ class DataTracker:
         self.work_timeout = work_timeout
         self.checkpoint_interval = checkpoint_interval
 
-        self.last_processed_row = -1   # Last contiguous row written.
-        self.next_row_id = 0           # Next row id to assign.
-        self.input_offset = 0          # Start of next row after last recorded work
+        self.last_processed_work_id = -1   # Last contiguous work id written.
+        self.next_work_id = 0              # Next work id to assign.
+        self.input_offset = 0              # Start of next line after last recorded work
 
         self.last_checkpoint_time = time.time()
         self.expired_reissues = 0
 
-        self.issued = {}            # row_id -> (row_content, input_offset)
-        self.issued_heap = []       # min-heap of (timestamp, row_id); uses lazy deletion
-        self.pending_write = {}     # row_id -> result
+        self.issued = {}            # work_id -> (content, input_offset)
+        self.issued_heap = []       # min-heap of (timestamp, work_id); uses lazy deletion
+        self.pending_write = {}     # work_id -> result
 
         self._state_lock = threading.Lock()
 
@@ -53,7 +53,7 @@ class DataTracker:
                     cp = json.load(f)
             except json.JSONDecodeError:
                 cp = {}
-            self.last_processed_row = cp.get("last_processed_row", -1)
+            self.last_processed_work_id = cp.get("last_processed_work_id", -1)
             self.input_offset = cp.get("input_offset", 0)
             self.infile.seek(self.input_offset)
             self.outfile.seek(cp.get("output_offset", 0))
@@ -68,14 +68,14 @@ class DataTracker:
             for _ in range(extra_count):
                 self.infile.readline()
 
-            self.last_processed_row += extra_count
-            self.next_row_id = self.last_processed_row + 1
+            self.last_processed_work_id += extra_count
+            self.next_work_id = self.last_processed_work_id + 1
 
-            logging.info(f"Loaded checkpoint: last_processed_row={self.last_processed_row}, "
+            logging.info(f"Loaded checkpoint: last_processed_work_id={self.last_processed_work_id}, "
                          f"input_offset={self.input_offset}, output_offset={self.outfile.tell()}")
         else:
-            self.last_processed_row = -1
-            self.next_row_id = 0
+            self.last_processed_work_id = -1
+            self.next_work_id = 0
             logging.info("No checkpoint found; starting fresh.")
 
     def all_work_complete(self) -> bool:
@@ -85,97 +85,98 @@ class DataTracker:
         remaining = os.stat(self.infile_path).st_size - self.infile.tell()
         return remaining == 0 and len(self.pending_write) == 0
 
-    def get_next_row(self):
+
+    def get_work_batch(self, batch_size=1):
         with self._state_lock:
             now = time.time()
             # check first for expired work needing to be reissued
-            while self.issued_heap:
-                heap_ts, row_id = self.issued_heap[0]
+            batch = []
+            while self.issued_heap and len(batch) < batch_size:
+                heap_ts, work_id = self.issued_heap[0]
                 # lazy deleteion
-                if row_id not in self.issued:
+                if work_id not in self.issued:
                     heapq.heappop(self.issued_heap)
                     continue
                 # see if the oldest iten in minheap needs to be reissued
                 if now - heap_ts > self.work_timeout:
                     heapq.heappop(self.issued_heap)
-                    content, input_offset = self.issued[row_id]
-                    return self._issue_work(now, content, input_offset, row_id)
+                    content, input_offset = self.issued[work_id]
+                    batch.append(self._track_issued_work(now, content, input_offset, work_id))
+                    continue
                 break
 
-            # get new work
-            line = self.infile.readline()
-            if not line:
-                return None  # End of file.
-            line = line.decode("utf-8")
-            row_content = line.rstrip("\n")
-            input_offset = self.infile.tell()
+            while len(batch) < batch_size:
+                # get new work
+                line = self.infile.readline()
+                if not line:
+                    break
+                line = line.decode("utf-8")
+                content = line.rstrip("\n")
+                input_offset = self.infile.tell()
+                batch.append(self._track_issued_work(now, content, input_offset))
+        if batch:
+            return batch
+        return None
 
-            return self._issue_work(now, row_content, input_offset)
 
-    def complete_row(self, row_id, result):
+    def _track_issued_work(self, when, content, input_offset, work_id=None):
+        if work_id is None:
+            work_id = self.next_work_id
+            self.next_work_id += 1
+            self.issued[work_id] = (content, input_offset)
+        else:
+            # this is reissued work
+            self.expired_reissues += 1
+            logging.info("Reissuing {work_id} after expiration ({self.expired_reissues=}).")
+            assert(work_id in self.issued)
+        heapq.heappush(self.issued_heap, (when, work_id))
+        return work_id, content
+
+
+    def complete_work_batch(self, batch):
         with self._state_lock:
-            if row_id <= self.last_processed_row or row_id in self.pending_write:
-                logging.warning(f"Duplicate completion for row {row_id}; discarding.")
-                return
-            if row_id not in self.issued:
-                logging.warning(f"Completion for row {row_id} not issued; discarding.")
-                return
-            if self._can_write(row_id):
-                self._write_result(row_id, result)
-                self._flush_pending()
-            else:
-                _, input_offset = self.issued[row_id]
-                self.pending_write[row_id] = result
-
+            for work_id, result in batch:
+                if work_id <= self.last_processed_work_id or work_id in self.pending_write:
+                    logging.warning(f"Duplicate completion for row {work_id}; discarding.")
+                if work_id not in self.issued:
+                    logging.warning(f"Completion for row {work_id} not issued; discarding.")
+                else:
+                    self.pending_write[work_id] = result
+            self._flush_pending_writes()
+                
             now = time.time()
             if now - self.last_checkpoint_time >= self.checkpoint_interval:
                 self._write_checkpoint()
                 self.last_checkpoint_time = now
-                logging.info(f"Checkpoint: last_processed_row={self.last_processed_row}, "
+                logging.info(f"Checkpoint: last_processed_work_id={self.last_processed_work_id}, "
                              f"input_offset={self.infile.tell()}, output_offset={self.outfile.tell()}, "
                              f"issued={len(self.issued)}, pending={len(self.pending_write)}, "
                              f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")
 
-    def _issue_work(self, when, row_content, input_offset, row_id=None):
-        if row_id is None:
-            row_id = self.next_row_id
-            self.next_row_id += 1
-            self.issued[row_id] = (row_content, input_offset)
-        else:
-            # this is reissued work
-            self.expired_reissues += 1
-            logging.info("Reissuing {row_id} after expiration ({self.expired_reissues=}).")
-            assert(row_id in self.issued)
-        heapq.heappush(self.issued_heap, (when, row_id))
-        return row_id, row_content
 
-    def _can_write(self, row_id):
-        return row_id == self.last_processed_row + 1
+    def _flush_pending_writes(self):
+        writes = []
+        next_id = self.last_processed_work_id + 1
+        while next_id in self.pending_write:
+            result = self.pending_write.pop(next_id)
+            self.last_processed_work_id = next_id
+            _, self.input_offset = self.issued[next_id]
+            del self.issued[next_id]
 
-    def _flush_pending(self):
-        next_expected = self.last_processed_row + 1
-        while next_expected in self.pending_write:
-            result = self.pending_write.pop(next_expected)
-            self._write_result(next_expected, result)
-            next_expected += 1
+            output = result + "\n"
+            output = output.encode("utf-8")
+            writes.append(output)
 
-    def _write_result(self, row_id, result):
-        # we always update the input offset when we write a result, because we
-        # always know it is the latest point input file that has been fully
-        # processed.
-        _, input_offset = self.issued[row_id]
-        del self.issued[row_id]
-        self.input_offset = input_offset
+            next_id += 1
 
-        line = result + "\n"
-        self.outfile.write(line.encode("utf-8"))
-        self.outfile.flush()
-        self.last_processed_row = row_id
+        if writes:
+            self.outfile.write(b''.join(writes))
+            self.outfile.flush()
 
 
     def _write_checkpoint(self):
         cp = {
-            "last_processed_row": self.last_processed_row,
+            "last_processed_work_id": self.last_processed_work_id,
             "input_offset": self.infile.tell(),
             "output_offset": self.outfile.tell()
         }
@@ -190,7 +191,7 @@ class DataTracker:
         with self._state_lock:
             # Write a final checkpoint and log status before shutting down.
             self._write_checkpoint()
-            logging.info(f"Final checkpoint written: last_processed_row={self.last_processed_row}, "
+            logging.info(f"Final checkpoint written: last_processed_work_id={self.last_processed_work_id}, "
                          f"input_offset={self.infile.tell()}, output_offset={self.outfile.tell()}, "
                          f"issued={len(self.issued)}, pending={len(self.pending_write)}, "
                          f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")

@@ -99,8 +99,8 @@ class TestServer(unittest.TestCase):
         status_resp = self.client.get("/status")
         self.assertEqual(status_resp.status_code, 200)
         status_data = status_resp.json()
-        # last_processed_row should now be at least 1
-        self.assertGreaterEqual(status_data["last_processed_row"], 1)
+        # last_processed_work_id should now be at least 1
+        self.assertGreaterEqual(status_data["last_processed_work_id"], 1)
 
     def test_all_work_complete(self):
         """
