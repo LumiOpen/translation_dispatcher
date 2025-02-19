@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 class DataTracker:
     def __init__(self, infile_path, outfile_path, checkpoint_path,
-                 work_timeout=300, checkpoint_interval=60):
+                 work_timeout=900, checkpoint_interval=60):
         """
         Parameters:
           - infile_path: Path to the input JSONL file.
