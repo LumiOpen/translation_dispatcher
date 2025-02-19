@@ -138,7 +138,7 @@ class DataTracker:
             for work_id, result in batch:
                 if work_id <= self.last_processed_work_id or work_id in self.pending_write:
                     logging.warning(f"Duplicate completion for row {work_id}; discarding.")
-                if work_id not in self.issued:
+                elif work_id not in self.issued:
                     logging.warning(f"Completion for row {work_id} not issued; discarding.")
                 else:
                     self.pending_write[work_id] = result
