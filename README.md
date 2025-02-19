@@ -92,3 +92,16 @@ while True:
         print(f"Unexpected status: {resp.status}")
         break
 ```
+
+## Update work timeout
+
+If you have too much work expiring because inferences are taking a long time,
+you can update the work timeout without restarting the job like this:
+
+```bash
+HOSTNAME=...
+curl -X POST -H "Content-Type: application/json" \
+     -d '{"timeout": 1600}' \
+     http://${HOSTNAME}:8000/work_timeout
+```
+
