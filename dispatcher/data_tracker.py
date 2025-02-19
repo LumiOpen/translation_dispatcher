@@ -127,7 +127,7 @@ class DataTracker:
         else:
             # this is reissued work
             self.expired_reissues += 1
-            logging.info("Reissuing {work_id} after expiration ({self.expired_reissues=}).")
+            logging.info(f"Reissuing {work_id} after expiration ({self.expired_reissues=}).")
             assert(work_id in self.issued)
         heapq.heappush(self.issued_heap, (when, work_id))
         return work_id, content
