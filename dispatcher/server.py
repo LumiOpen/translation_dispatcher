@@ -4,7 +4,9 @@ import logging
 import threading
 import time
 import sys
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Body
+from pydantic import BaseModel
+
 from dispatcher.models import (
     WorkItem,
     BatchWorkResponse,
@@ -68,6 +70,27 @@ def get_status():
         "pending": len(dt.pending_write),
         "heap_size": len(dt.issued_heap),
         "expired_reissues": dt.expired_reissues
+    }
+
+# Pydantic model for the request body
+class WorkTimeoutUpdate(BaseModel):
+    timeout: float  # or int, depending on your exact need
+
+@app.post("/work_timeout")
+def update_work_timeout(data: WorkTimeoutUpdate = Body(...)):
+    """
+    Update the dt.work_timeout to a new value. 
+    The request body should be a JSON object with a key "timeout".
+    """
+    global dt
+    if dt is None:
+        return {"error": "DataTracker is not initialized"}
+
+    # Update the DataTracker's work_timeout
+    dt.work_timeout = data.timeout
+    return {
+        "status": "OK",
+        "message": f"work_timeout updated to {dt.work_timeout}"
     }
 
 def main():
