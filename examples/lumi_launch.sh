@@ -23,6 +23,10 @@ OUTPUT_FILE=output.jsonl
 # jq-like path string to find the prompt within the input jsonl row.
 PROMPT_PATH='.messages[0].content'
 
+# Prompting mode is "chat" or "completion"
+MODE=chat
+STOP_TOKEN="\n\n"  # only used in "completion" mode.
+
 # generation parameters
 BATCH_SIZE=64       # number of prompts in a batch
 NUM_GENERATIONS=1   # generations per prompt
@@ -31,6 +35,7 @@ NUM_GENERATIONS=1   # generations per prompt
 MIN_P=0.05
 TOP_P=1.00
 TEMPERATURE=0.8
+
 
 #
 # If you are changing the model, be sure to update GPUS_PER_TASK and the
@@ -101,6 +106,8 @@ srun -l bash -c '
         --batch_size '"$BATCH_SIZE"' \
         --dispatcher_server ${DISPATCHER_SERVER}:${DISPATCHER_PORT} \
         --prompt_path "'"$PROMPT_PATH"'" \
+        --mode '"$MODE"' \
+        --stop_token "'"$STOP_TOKEN"'" \
         --num_generations '"$NUM_GENERATIONS"' \
         --max_model_len '"$MAX_MODEL_LEN"' \
         --max_tokens '"$MAX_TOKENS"' \
