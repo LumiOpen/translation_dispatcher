@@ -1,0 +1,228 @@
+NOTE: This module uses Singularity. Some commands execute inside the container
+(e.g. python3, pip3).
+
+This module has been installed by CSC.
+
+Documentation: https://docs.csc.fi/apps/pytorch/
+Support: https://docs.csc.fi/support/contact/
+
+  Running command git clone --filter=blob:none --quiet https://github.com/LumiOpen/dispatcher.git /tmp/pip-req-build-nh15_3tv
+/pfs/lustrep1/scratch/project_462000444/zosaelai2/translation_dispatcher/examples/pythonuserbase/lib/python3.10/site-packages/dispatcher/server.py:33: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:root:No checkpoint found; starting fresh.
+INFO:root:Server starting with infile=input.jsonl, outfile=output.jsonl, checkpoint=output.jsonl.checkpoint, retry_time=300
+0: NOTE: This module uses Singularity. Some commands execute inside the container
+0: (e.g. python3, pip3).
+0: 
+0: This module has been installed by CSC.
+0: 
+0: Documentation: https://docs.csc.fi/apps/pytorch/
+0: Support: https://docs.csc.fi/support/contact/
+0: 
+1: NOTE: This module uses Singularity. Some commands execute inside the container
+1: (e.g. python3, pip3).
+1: 
+1: This module has been installed by CSC.
+1: 
+1: Documentation: https://docs.csc.fi/apps/pytorch/
+1: Support: https://docs.csc.fi/support/contact/
+1: 
+2: NOTE: This module uses Singularity. Some commands execute inside the container
+2: (e.g. python3, pip3).
+2: 
+2: This module has been installed by CSC.
+2: 
+2: Documentation: https://docs.csc.fi/apps/pytorch/
+2: Support: https://docs.csc.fi/support/contact/
+2: 
+3: NOTE: This module uses Singularity. Some commands execute inside the container
+3: (e.g. python3, pip3).
+3: 
+3: This module has been installed by CSC.
+3: 
+3: Documentation: https://docs.csc.fi/apps/pytorch/
+3: Support: https://docs.csc.fi/support/contact/
+3: 
+4: NOTE: This module uses Singularity. Some commands execute inside the container
+4: (e.g. python3, pip3).
+4: 
+4: This module has been installed by CSC.
+4: 
+4: Documentation: https://docs.csc.fi/apps/pytorch/
+4: Support: https://docs.csc.fi/support/contact/
+4: 
+5: NOTE: This module uses Singularity. Some commands execute inside the container
+5: (e.g. python3, pip3).
+5: 
+5: This module has been installed by CSC.
+5: 
+5: Documentation: https://docs.csc.fi/apps/pytorch/
+5: Support: https://docs.csc.fi/support/contact/
+5: 
+6: NOTE: This module uses Singularity. Some commands execute inside the container
+6: (e.g. python3, pip3).
+6: 
+6: This module has been installed by CSC.
+6: 
+6: Documentation: https://docs.csc.fi/apps/pytorch/
+6: Support: https://docs.csc.fi/support/contact/
+6: 
+7: NOTE: This module uses Singularity. Some commands execute inside the container
+7: (e.g. python3, pip3).
+7: 
+7: This module has been installed by CSC.
+7: 
+7: Documentation: https://docs.csc.fi/apps/pytorch/
+7: Support: https://docs.csc.fi/support/contact/
+7: 
+0: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4999.71 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 3945.27 MB free disk space.
+0:   warnings.warn(
+0: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.17 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 3945.27 MB free disk space.
+0:   warnings.warn(
+0: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4584.41 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 3945.27 MB free disk space.
+0:   warnings.warn(
+0: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.13 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 3945.27 MB free disk space.
+0:   warnings.warn(
+0: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4966.16 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 3945.27 MB free disk space.
+0:   warnings.warn(
+0: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.17 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+0:   warnings.warn(
+0: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.13 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+0:   warnings.warn(
+0: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4966.16 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+0:   warnings.warn(
+3: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.17 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+3:   warnings.warn(
+3: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4966.16 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+3:   warnings.warn(
+3: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4999.71 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+3:   warnings.warn(
+3: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4584.41 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+3:   warnings.warn(
+3: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.13 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+3:   warnings.warn(
+5: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4584.41 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+5:   warnings.warn(
+5: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.17 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+5:   warnings.warn(
+5: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4966.16 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+5:   warnings.warn(
+5: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4999.71 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+5:   warnings.warn(
+5: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.13 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+5:   warnings.warn(
+0: [rank0]: Traceback (most recent call last):
+0: [rank0]:   File "/pfs/lustrep1/scratch/project_462000444/zosaelai2/translation_dispatcher/examples/inference.py", line 306, in <module>
+0: [rank0]:     main()
+0: [rank0]:   File "/pfs/lustrep1/scratch/project_462000444/zosaelai2/translation_dispatcher/examples/inference.py", line 229, in main
+0: [rank0]:     generator = Generator(
+0: [rank0]:   File "/pfs/lustrep1/scratch/project_462000444/zosaelai2/translation_dispatcher/examples/inference.py", line 23, in __init__
+0: [rank0]:     self.model = LLM(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/utils.py", line 983, in inner
+0: [rank0]:     return fn(*args, **kwargs)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/entrypoints/llm.py", line 230, in __init__
+0: [rank0]:     self.llm_engine = self.engine_class.from_engine_args(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/engine/llm_engine.py", line 517, in from_engine_args
+0: [rank0]:     engine = cls(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/engine/llm_engine.py", line 273, in __init__
+0: [rank0]:     self.model_executor = executor_class(vllm_config=vllm_config, )
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/executor/distributed_gpu_executor.py", line 26, in __init__
+0: [rank0]:     super().__init__(*args, **kwargs)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/executor/executor_base.py", line 36, in __init__
+0: [rank0]:     self._init_executor()
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/executor/multiproc_gpu_executor.py", line 83, in _init_executor
+0: [rank0]:     self._run_workers("load_model",
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/executor/multiproc_gpu_executor.py", line 157, in _run_workers
+0: [rank0]:     driver_worker_output = driver_worker_method(*args, **kwargs)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/worker/worker.py", line 155, in load_model
+0: [rank0]:     self.model_runner.load_model()
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/worker/model_runner.py", line 1094, in load_model
+0: [rank0]:     self.model = get_model(vllm_config=self.vllm_config)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/model_loader/__init__.py", line 12, in get_model
+0: [rank0]:     return loader.load_model(vllm_config=vllm_config)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/model_loader/loader.py", line 364, in load_model
+0: [rank0]:     loaded_weights = model.load_weights(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/models/llama.py", line 594, in load_weights
+0: [rank0]:     return loader.load_weights(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/models/utils.py", line 237, in load_weights
+0: [rank0]:     autoloaded_weights = set(self._load_module("", self.module, weights))
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/models/utils.py", line 189, in _load_module
+0: [rank0]:     for child_prefix, child_weights in self._groupby_prefix(weights):
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/models/utils.py", line 103, in _groupby_prefix
+0: [rank0]:     for prefix, group in itertools.groupby(weights_by_parts,
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/models/utils.py", line 100, in <genexpr>
+0: [rank0]:     weights_by_parts = ((weight_name.split(".", 1), weight_data)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/models/llama.py", line 594, in <genexpr>
+0: [rank0]:     return loader.load_weights(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/model_loader/loader.py", line 340, in _get_all_weights
+0: [rank0]:     yield from self._get_weights_iterator(primary_weights)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/model_loader/loader.py", line 296, in _get_weights_iterator
+0: [rank0]:     hf_folder, hf_weights_files, use_safetensors = self._prepare_weights(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/model_loader/loader.py", line 249, in _prepare_weights
+0: [rank0]:     hf_folder = download_weights_from_hf(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/model_executor/model_loader/weight_utils.py", line 247, in download_weights_from_hf
+0: [rank0]:     hf_folder = snapshot_download(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+0: [rank0]:     return fn(*args, **kwargs)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/huggingface_hub/_snapshot_download.py", line 296, in snapshot_download
+0: [rank0]:     thread_map(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/tqdm/contrib/concurrent.py", line 69, in thread_map
+0: [rank0]:     return _executor_map(ThreadPoolExecutor, fn, *iterables, **tqdm_kwargs)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/tqdm/contrib/concurrent.py", line 51, in _executor_map
+0: [rank0]:     return list(tqdm_class(ex.map(fn, *iterables, chunksize=chunksize), **kwargs))
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/tqdm/std.py", line 1169, in __iter__
+0: [rank0]:     for obj in iterable:
+0: [rank0]:   File "/usr/lib/python3.10/concurrent/futures/_base.py", line 621, in result_iterator
+0: [rank0]:     yield _result_or_cancel(fs.pop())
+0: [rank0]:   File "/usr/lib/python3.10/concurrent/futures/_base.py", line 319, in _result_or_cancel
+0: [rank0]:     return fut.result(timeout)
+0: [rank0]:   File "/usr/lib/python3.10/concurrent/futures/_base.py", line 458, in result
+0: [rank0]:     return self.__get_result()
+0: [rank0]:   File "/usr/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+0: [rank0]:     raise self._exception
+0: [rank0]:   File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+0: [rank0]:     result = self.fn(*self.args, **self.kwargs)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/huggingface_hub/_snapshot_download.py", line 270, in _inner_hf_hub_download
+0: [rank0]:     return hf_hub_download(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+0: [rank0]:     return fn(*args, **kwargs)
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py", line 860, in hf_hub_download
+0: [rank0]:     return _hf_hub_download_to_cache_dir(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py", line 1009, in _hf_hub_download_to_cache_dir
+0: [rank0]:     _download_to_tmp_and_move(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py", line 1543, in _download_to_tmp_and_move
+0: [rank0]:     http_get(
+0: [rank0]:   File "/usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py", line 455, in http_get
+0: [rank0]:     temp_file.write(chunk)
+0: [rank0]: OSError: [Errno 122] Disk quota exceeded
+6: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4584.41 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+6:   warnings.warn(
+6: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.17 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+6:   warnings.warn(
+6: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4999.71 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+6:   warnings.warn(
+6: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4966.16 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+6:   warnings.warn(
+0: Exception ignored in: <function LLM.__del__ at 0x150b9978c940>
+0: Traceback (most recent call last):
+0:   File "/usr/local/lib/python3.10/dist-packages/vllm-0.6.6.dev27+ge461c262.rocm624-py3.10-linux-x86_64.egg/vllm/entrypoints/llm.py", line 236, in __del__
+0:     if self.llm_engine and hasattr(self.llm_engine, "shutdown"):
+0: AttributeError: 'LLM' object has no attribute 'llm_engine'
+6: /usr/local/lib/python3.10/dist-packages/huggingface_hub/file_download.py:651: UserWarning: Not enough free disk space to download the file. The expected file size is: 4664.13 MB. The target location /users/zosaelai2/.cache/huggingface/hub/models--meta-llama--Llama-3.3-70B-Instruct/blobs only has 0.00 MB free disk space.
+6:   warnings.warn(
+0: [rank0]:[W317 15:13:26.599742649 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
+0: /usr/lib/python3.10/multiprocessing/resource_tracker.py:224: UserWarning: resource_tracker: There appear to be 1 leaked shared_memory objects to clean up at shutdown
+0:   warnings.warn('resource_tracker: There appear to be %d '
+srun: error: nid005003: task 0: Exited with exit code 1
+srun: Terminating StepId=9937448.0
+0: slurmstepd: error: *** STEP 9937448.0 ON nid005003 CANCELLED AT 2025-03-17T15:13:29 ***
+srun: error: nid005005: tasks 4-5: Terminated
+srun: error: nid005003: task 1: Terminated
+srun: error: nid005006: tasks 6-7: Terminated
+srun: error: nid005004: tasks 2-3: Terminated
+srun: Force Terminated StepId=9937448.0

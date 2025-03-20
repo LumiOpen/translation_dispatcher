@@ -1,0 +1,297 @@
+Defaulting to user installation because normal site-packages is not writeable
+Collecting git+https://github.com/LumiOpen/dispatcher.git
+  Cloning https://github.com/LumiOpen/dispatcher.git to /tmp/pip-req-build-nh15_3tv
+  Resolved https://github.com/LumiOpen/dispatcher.git to commit aa18f25a60259f932b9ac021ec5f3d6d78f6c1e2
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Requirement already satisfied: fastapi in /usr/local/lib/python3.10/dist-packages (from dispatcher==0.1.0) (0.115.6)
+Requirement already satisfied: pydantic in /usr/local/lib/python3.10/dist-packages (from dispatcher==0.1.0) (2.10.4)
+Requirement already satisfied: requests in /usr/local/lib/python3.10/dist-packages (from dispatcher==0.1.0) (2.32.3)
+Requirement already satisfied: uvicorn in /usr/local/lib/python3.10/dist-packages (from dispatcher==0.1.0) (0.34.0)
+Requirement already satisfied: typing-extensions>=4.8.0 in /usr/local/lib/python3.10/dist-packages (from fastapi->dispatcher==0.1.0) (4.12.2)
+Requirement already satisfied: starlette<0.42.0,>=0.40.0 in /usr/local/lib/python3.10/dist-packages (from fastapi->dispatcher==0.1.0) (0.41.3)
+Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.10/dist-packages (from pydantic->dispatcher==0.1.0) (0.7.0)
+Requirement already satisfied: pydantic-core==2.27.2 in /usr/local/lib/python3.10/dist-packages (from pydantic->dispatcher==0.1.0) (2.27.2)
+Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.10/dist-packages (from requests->dispatcher==0.1.0) (2024.12.14)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/dist-packages (from requests->dispatcher==0.1.0) (2.2.3)
+Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests->dispatcher==0.1.0) (3.4.0)
+Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/dist-packages (from requests->dispatcher==0.1.0) (3.10)
+Requirement already satisfied: h11>=0.8 in /usr/local/lib/python3.10/dist-packages (from uvicorn->dispatcher==0.1.0) (0.14.0)
+Requirement already satisfied: click>=7.0 in /usr/local/lib/python3.10/dist-packages (from uvicorn->dispatcher==0.1.0) (8.1.7)
+Requirement already satisfied: anyio<5,>=3.4.0 in /usr/local/lib/python3.10/dist-packages (from starlette<0.42.0,>=0.40.0->fastapi->dispatcher==0.1.0) (4.7.0)
+Requirement already satisfied: exceptiongroup>=1.0.2 in /usr/local/lib/python3.10/dist-packages (from anyio<5,>=3.4.0->starlette<0.42.0,>=0.40.0->fastapi->dispatcher==0.1.0) (1.2.2)
+Requirement already satisfied: sniffio>=1.1 in /usr/local/lib/python3.10/dist-packages (from anyio<5,>=3.4.0->starlette<0.42.0,>=0.40.0->fastapi->dispatcher==0.1.0) (1.3.1)
+0: Launching task 0 (global id: 0) with GPU 0,1,2,3 on nid005003
+1: Launching task 1 (global id: 1) with GPU 4,5,6,7 on nid005003
+2: Launching task 0 (global id: 2) with GPU 0,1,2,3 on nid005004
+3: Launching task 1 (global id: 3) with GPU 4,5,6,7 on nid005004
+4: Launching task 0 (global id: 4) with GPU 0,1,2,3 on nid005005
+5: Launching task 1 (global id: 5) with GPU 4,5,6,7 on nid005005
+6: Launching task 0 (global id: 6) with GPU 0,1,2,3 on nid005006
+7: Launching task 1 (global id: 7) with GPU 4,5,6,7 on nid005006
+1: WARNING 03-17 15:11:30 rocm.py:31] `fork` method is not supported by ROCm. VLLM_WORKER_MULTIPROC_METHOD is overridden to `spawn` instead.
+0: WARNING 03-17 15:11:30 rocm.py:31] `fork` method is not supported by ROCm. VLLM_WORKER_MULTIPROC_METHOD is overridden to `spawn` instead.
+1: INFO 03-17 15:11:52 config.py:482] This model supports multiple tasks: {'score', 'classify', 'generate', 'reward', 'embed'}. Defaulting to 'generate'.
+1: INFO 03-17 15:11:52 config.py:1274] Defaulting to use mp for distributed inference
+1: INFO 03-17 15:11:52 config.py:1302] Disabled the custom all-reduce kernel because it is not supported on AMD GPUs.
+1: INFO 03-17 15:11:52 llm_engine.py:234] Initializing an LLM engine (v0.6.6.dev27+ge461c262) with config: model='meta-llama/Llama-3.3-70B-Instruct', speculative_config=None, tokenizer='meta-llama/Llama-3.3-70B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=auto, tensor_parallel_size=4, pipeline_parallel_size=1, disable_custom_all_reduce=True, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=meta-llama/Llama-3.3-70B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_ou
+1: tput_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"candidate_compile_sizes":[],"compile_sizes":[],"capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":256}, use_cached_outputs=False, 
+0: INFO 03-17 15:11:52 config.py:482] This model supports multiple tasks: {'reward', 'embed', 'score', 'generate', 'classify'}. Defaulting to 'generate'.
+0: INFO 03-17 15:11:52 config.py:1274] Defaulting to use mp for distributed inference
+0: INFO 03-17 15:11:52 config.py:1302] Disabled the custom all-reduce kernel because it is not supported on AMD GPUs.
+0: INFO 03-17 15:11:52 llm_engine.py:234] Initializing an LLM engine (v0.6.6.dev27+ge461c262) with config: model='meta-llama/Llama-3.3-70B-Instruct', speculative_config=None, tokenizer='meta-llama/Llama-3.3-70B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=auto, tensor_parallel_size=4, pipeline_parallel_size=1, disable_custom_all_reduce=True, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=meta-llama/Llama-3.3-70B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_ou
+0: tput_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"candidate_compile_sizes":[],"compile_sizes":[],"capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":256}, use_cached_outputs=False, 
+1: WARNING 03-17 15:11:59 multiproc_worker_utils.py:312] Reducing Torch parallelism from 7 threads to 1 to avoid unnecessary CPU contention. Set OMP_NUM_THREADS in the external environment to tune this value as needed.
+0: WARNING 03-17 15:11:59 multiproc_worker_utils.py:312] Reducing Torch parallelism from 7 threads to 1 to avoid unnecessary CPU contention. Set OMP_NUM_THREADS in the external environment to tune this value as needed.
+1: INFO 03-17 15:11:59 custom_cache_manager.py:17] Setting Triton cache manager to: vllm.triton_utils.custom_cache_manager:CustomCacheManager
+0: INFO 03-17 15:11:59 custom_cache_manager.py:17] Setting Triton cache manager to: vllm.triton_utils.custom_cache_manager:CustomCacheManager
+1: INFO 03-17 15:12:04 selector.py:134] Using ROCmFlashAttention backend.
+0: INFO 03-17 15:12:04 selector.py:134] Using ROCmFlashAttention backend.
+1: [1;36m(VllmWorkerProcess pid=96830)[0;0m INFO 03-17 15:12:08 selector.py:134] Using ROCmFlashAttention backend.
+0: [1;36m(VllmWorkerProcess pid=96841)[0;0m INFO 03-17 15:12:08 selector.py:134] Using ROCmFlashAttention backend.
+1: [1;36m(VllmWorkerProcess pid=96833)[0;0m INFO 03-17 15:12:08 selector.py:134] Using ROCmFlashAttention backend.
+1: [1;36m(VllmWorkerProcess pid=96832)[0;0m INFO 03-17 15:12:08 selector.py:134] Using ROCmFlashAttention backend.
+0: [1;36m(VllmWorkerProcess pid=96843)[0;0m INFO 03-17 15:12:08 selector.py:134] Using ROCmFlashAttention backend.
+0: [1;36m(VllmWorkerProcess pid=96842)[0;0m INFO 03-17 15:12:08 selector.py:134] Using ROCmFlashAttention backend.
+1: [1;36m(VllmWorkerProcess pid=96830)[0;0m INFO 03-17 15:12:08 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+0: [1;36m(VllmWorkerProcess pid=96841)[0;0m INFO 03-17 15:12:08 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+1: [1;36m(VllmWorkerProcess pid=96833)[0;0m INFO 03-17 15:12:08 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+1: [1;36m(VllmWorkerProcess pid=96832)[0;0m INFO 03-17 15:12:08 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+0: [1;36m(VllmWorkerProcess pid=96843)[0;0m INFO 03-17 15:12:08 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+0: [1;36m(VllmWorkerProcess pid=96842)[0;0m INFO 03-17 15:12:08 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+1: INFO 03-17 15:12:08 utils.py:915] Found nccl from library librccl.so.1
+1: INFO 03-17 15:12:08 pynccl.py:69] vLLM is using nccl==2.20.5
+1: [1;36m(VllmWorkerProcess pid=96830)[0;0m INFO 03-17 15:12:08 utils.py:915] Found nccl from library librccl.so.1
+1: [1;36m(VllmWorkerProcess pid=96832)[0;0m INFO 03-17 15:12:08 utils.py:915] Found nccl from library librccl.so.1
+1: [1;36m(VllmWorkerProcess pid=96833)[0;0m INFO 03-17 15:12:08 utils.py:915] Found nccl from library librccl.so.1
+1: [1;36m(VllmWorkerProcess pid=96832)[0;0m INFO 03-17 15:12:08 pynccl.py:69] vLLM is using nccl==2.20.5
+1: [1;36m(VllmWorkerProcess pid=96830)[0;0m INFO 03-17 15:12:08 pynccl.py:69] vLLM is using nccl==2.20.5
+1: [1;36m(VllmWorkerProcess pid=96833)[0;0m INFO 03-17 15:12:08 pynccl.py:69] vLLM is using nccl==2.20.5
+0: INFO 03-17 15:12:08 utils.py:915] Found nccl from library librccl.so.1
+0: [1;36m(VllmWorkerProcess pid=96841)[0;0m INFO 03-17 15:12:08 utils.py:915] Found nccl from library librccl.so.1
+0: [1;36m(VllmWorkerProcess pid=96843)[0;0m INFO 03-17 15:12:08 utils.py:915] Found nccl from library librccl.so.1
+0: INFO 03-17 15:12:08 pynccl.py:69] vLLM is using nccl==2.20.5
+0: [1;36m(VllmWorkerProcess pid=96841)[0;0m INFO 03-17 15:12:08 pynccl.py:69] vLLM is using nccl==2.20.5
+0: [1;36m(VllmWorkerProcess pid=96843)[0;0m INFO 03-17 15:12:08 pynccl.py:69] vLLM is using nccl==2.20.5
+0: [1;36m(VllmWorkerProcess pid=96842)[0;0m INFO 03-17 15:12:08 utils.py:915] Found nccl from library librccl.so.1
+0: [1;36m(VllmWorkerProcess pid=96842)[0;0m INFO 03-17 15:12:08 pynccl.py:69] vLLM is using nccl==2.20.5
+1: INFO 03-17 15:12:12 utils.py:482] Port 8100 is already in use, trying port 8101
+0: INFO 03-17 15:12:12 utils.py:482] Port 8000 is already in use, trying port 8001
+1: INFO 03-17 15:12:12 shm_broadcast.py:255] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer_handle=(3, 4194304, 6, 'psm_9d243a4a'), local_subscribe_port=8101, remote_subscribe_port=None)
+0: INFO 03-17 15:12:12 shm_broadcast.py:255] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer_handle=(3, 4194304, 6, 'psm_526020cf'), local_subscribe_port=8001, remote_subscribe_port=None)
+0: INFO 03-17 15:12:12 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+1: INFO 03-17 15:12:12 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+1: [1;36m(VllmWorkerProcess pid=96830)[0;0m INFO 03-17 15:12:12 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+0: [1;36m(VllmWorkerProcess pid=96841)[0;0m INFO 03-17 15:12:12 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+0: [1;36m(VllmWorkerProcess pid=96843)[0;0m INFO 03-17 15:12:12 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+0: [1;36m(VllmWorkerProcess pid=96842)[0;0m INFO 03-17 15:12:12 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+1: [1;36m(VllmWorkerProcess pid=96832)[0;0m INFO 03-17 15:12:12 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+1: [1;36m(VllmWorkerProcess pid=96833)[0;0m INFO 03-17 15:12:12 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+2: WARNING 03-17 15:12:14 rocm.py:31] `fork` method is not supported by ROCm. VLLM_WORKER_MULTIPROC_METHOD is overridden to `spawn` instead.
+3: WARNING 03-17 15:12:14 rocm.py:31] `fork` method is not supported by ROCm. VLLM_WORKER_MULTIPROC_METHOD is overridden to `spawn` instead.
+0: INFO 03-17 15:12:14 weight_utils.py:243] Using model weights format ['*.safetensors']
+1: INFO 03-17 15:12:14 weight_utils.py:243] Using model weights format ['*.safetensors']
+0: [1;36m(VllmWorkerProcess pid=96843)[0;0m INFO 03-17 15:12:14 weight_utils.py:243] Using model weights format ['*.safetensors']
+1: [1;36m(VllmWorkerProcess pid=96833)[0;0m INFO 03-17 15:12:14 weight_utils.py:243] Using model weights format ['*.safetensors']
+0: [1;36m(VllmWorkerProcess pid=96841)[0;0m INFO 03-17 15:12:14 weight_utils.py:243] Using model weights format ['*.safetensors']
+0: [1;36m(VllmWorkerProcess pid=96842)[0;0m INFO 03-17 15:12:14 weight_utils.py:243] Using model weights format ['*.safetensors']
+1: [1;36m(VllmWorkerProcess pid=96832)[0;0m INFO 03-17 15:12:14 weight_utils.py:243] Using model weights format ['*.safetensors']
+1: [1;36m(VllmWorkerProcess pid=96830)[0;0m INFO 03-17 15:12:14 weight_utils.py:243] Using model weights format ['*.safetensors']
+6: WARNING 03-17 15:12:18 rocm.py:31] `fork` method is not supported by ROCm. VLLM_WORKER_MULTIPROC_METHOD is overridden to `spawn` instead.
+7: WARNING 03-17 15:12:18 rocm.py:31] `fork` method is not supported by ROCm. VLLM_WORKER_MULTIPROC_METHOD is overridden to `spawn` instead.
+5: WARNING 03-17 15:12:19 rocm.py:31] `fork` method is not supported by ROCm. VLLM_WORKER_MULTIPROC_METHOD is overridden to `spawn` instead.
+4: WARNING 03-17 15:12:19 rocm.py:31] `fork` method is not supported by ROCm. VLLM_WORKER_MULTIPROC_METHOD is overridden to `spawn` instead.
+2: INFO 03-17 15:12:49 config.py:482] This model supports multiple tasks: {'reward', 'generate', 'score', 'classify', 'embed'}. Defaulting to 'generate'.
+2: INFO 03-17 15:12:49 config.py:1274] Defaulting to use mp for distributed inference
+2: INFO 03-17 15:12:49 config.py:1302] Disabled the custom all-reduce kernel because it is not supported on AMD GPUs.
+2: INFO 03-17 15:12:49 llm_engine.py:234] Initializing an LLM engine (v0.6.6.dev27+ge461c262) with config: model='meta-llama/Llama-3.3-70B-Instruct', speculative_config=None, tokenizer='meta-llama/Llama-3.3-70B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=auto, tensor_parallel_size=4, pipeline_parallel_size=1, disable_custom_all_reduce=True, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=meta-llama/Llama-3.3-70B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_ou
+2: tput_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"candidate_compile_sizes":[],"compile_sizes":[],"capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":256}, use_cached_outputs=False, 
+3: INFO 03-17 15:12:49 config.py:482] This model supports multiple tasks: {'reward', 'embed', 'score', 'classify', 'generate'}. Defaulting to 'generate'.
+3: INFO 03-17 15:12:49 config.py:1274] Defaulting to use mp for distributed inference
+3: INFO 03-17 15:12:49 config.py:1302] Disabled the custom all-reduce kernel because it is not supported on AMD GPUs.
+3: INFO 03-17 15:12:49 llm_engine.py:234] Initializing an LLM engine (v0.6.6.dev27+ge461c262) with config: model='meta-llama/Llama-3.3-70B-Instruct', speculative_config=None, tokenizer='meta-llama/Llama-3.3-70B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=auto, tensor_parallel_size=4, pipeline_parallel_size=1, disable_custom_all_reduce=True, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=meta-llama/Llama-3.3-70B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_ou
+3: tput_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"candidate_compile_sizes":[],"compile_sizes":[],"capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":256}, use_cached_outputs=False, 
+2: WARNING 03-17 15:12:50 multiproc_worker_utils.py:312] Reducing Torch parallelism from 7 threads to 1 to avoid unnecessary CPU contention. Set OMP_NUM_THREADS in the external environment to tune this value as needed.
+3: WARNING 03-17 15:12:50 multiproc_worker_utils.py:312] Reducing Torch parallelism from 7 threads to 1 to avoid unnecessary CPU contention. Set OMP_NUM_THREADS in the external environment to tune this value as needed.
+2: INFO 03-17 15:12:50 custom_cache_manager.py:17] Setting Triton cache manager to: vllm.triton_utils.custom_cache_manager:CustomCacheManager
+3: INFO 03-17 15:12:50 custom_cache_manager.py:17] Setting Triton cache manager to: vllm.triton_utils.custom_cache_manager:CustomCacheManager
+4: INFO 03-17 15:12:52 config.py:482] This model supports multiple tasks: {'reward', 'classify', 'embed', 'score', 'generate'}. Defaulting to 'generate'.
+4: INFO 03-17 15:12:52 config.py:1274] Defaulting to use mp for distributed inference
+4: INFO 03-17 15:12:52 config.py:1302] Disabled the custom all-reduce kernel because it is not supported on AMD GPUs.
+5: INFO 03-17 15:12:52 config.py:482] This model supports multiple tasks: {'generate', 'embed', 'classify', 'reward', 'score'}. Defaulting to 'generate'.
+5: INFO 03-17 15:12:52 config.py:1274] Defaulting to use mp for distributed inference
+5: INFO 03-17 15:12:52 config.py:1302] Disabled the custom all-reduce kernel because it is not supported on AMD GPUs.
+4: INFO 03-17 15:12:52 llm_engine.py:234] Initializing an LLM engine (v0.6.6.dev27+ge461c262) with config: model='meta-llama/Llama-3.3-70B-Instruct', speculative_config=None, tokenizer='meta-llama/Llama-3.3-70B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=auto, tensor_parallel_size=4, pipeline_parallel_size=1, disable_custom_all_reduce=True, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=meta-llama/Llama-3.3-70B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_ou
+4: tput_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"candidate_compile_sizes":[],"compile_sizes":[],"capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":256}, use_cached_outputs=False, 
+5: INFO 03-17 15:12:52 llm_engine.py:234] Initializing an LLM engine (v0.6.6.dev27+ge461c262) with config: model='meta-llama/Llama-3.3-70B-Instruct', speculative_config=None, tokenizer='meta-llama/Llama-3.3-70B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=auto, tensor_parallel_size=4, pipeline_parallel_size=1, disable_custom_all_reduce=True, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=meta-llama/Llama-3.3-70B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_ou
+5: tput_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"candidate_compile_sizes":[],"compile_sizes":[],"capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":256}, use_cached_outputs=False, 
+5: WARNING 03-17 15:12:53 multiproc_worker_utils.py:312] Reducing Torch parallelism from 7 threads to 1 to avoid unnecessary CPU contention. Set OMP_NUM_THREADS in the external environment to tune this value as needed.
+4: WARNING 03-17 15:12:53 multiproc_worker_utils.py:312] Reducing Torch parallelism from 7 threads to 1 to avoid unnecessary CPU contention. Set OMP_NUM_THREADS in the external environment to tune this value as needed.
+4: INFO 03-17 15:12:53 custom_cache_manager.py:17] Setting Triton cache manager to: vllm.triton_utils.custom_cache_manager:CustomCacheManager
+5: INFO 03-17 15:12:53 custom_cache_manager.py:17] Setting Triton cache manager to: vllm.triton_utils.custom_cache_manager:CustomCacheManager
+2: INFO 03-17 15:12:54 selector.py:134] Using ROCmFlashAttention backend.
+3: INFO 03-17 15:12:55 selector.py:134] Using ROCmFlashAttention backend.
+7: INFO 03-17 15:12:55 config.py:482] This model supports multiple tasks: {'reward', 'score', 'classify', 'embed', 'generate'}. Defaulting to 'generate'.
+7: INFO 03-17 15:12:55 config.py:1274] Defaulting to use mp for distributed inference
+7: INFO 03-17 15:12:55 config.py:1302] Disabled the custom all-reduce kernel because it is not supported on AMD GPUs.
+7: INFO 03-17 15:12:55 llm_engine.py:234] Initializing an LLM engine (v0.6.6.dev27+ge461c262) with config: model='meta-llama/Llama-3.3-70B-Instruct', speculative_config=None, tokenizer='meta-llama/Llama-3.3-70B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=auto, tensor_parallel_size=4, pipeline_parallel_size=1, disable_custom_all_reduce=True, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=meta-llama/Llama-3.3-70B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_ou
+7: tput_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"candidate_compile_sizes":[],"compile_sizes":[],"capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":256}, use_cached_outputs=False, 
+6: INFO 03-17 15:12:55 config.py:482] This model supports multiple tasks: {'classify', 'score', 'embed', 'generate', 'reward'}. Defaulting to 'generate'.
+6: INFO 03-17 15:12:55 config.py:1274] Defaulting to use mp for distributed inference
+6: INFO 03-17 15:12:55 config.py:1302] Disabled the custom all-reduce kernel because it is not supported on AMD GPUs.
+6: INFO 03-17 15:12:55 llm_engine.py:234] Initializing an LLM engine (v0.6.6.dev27+ge461c262) with config: model='meta-llama/Llama-3.3-70B-Instruct', speculative_config=None, tokenizer='meta-llama/Llama-3.3-70B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=16384, download_dir=None, load_format=auto, tensor_parallel_size=4, pipeline_parallel_size=1, disable_custom_all_reduce=True, quantization=None, enforce_eager=False, kv_cache_dtype=auto, quantization_param_path=None, device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='xgrammar'), observability_config=ObservabilityConfig(otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=0, served_model_name=meta-llama/Llama-3.3-70B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=False, chunked_prefill_enabled=False, use_async_ou
+6: tput_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"candidate_compile_sizes":[],"compile_sizes":[],"capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":256}, use_cached_outputs=False, 
+7: WARNING 03-17 15:12:56 multiproc_worker_utils.py:312] Reducing Torch parallelism from 7 threads to 1 to avoid unnecessary CPU contention. Set OMP_NUM_THREADS in the external environment to tune this value as needed.
+6: WARNING 03-17 15:12:56 multiproc_worker_utils.py:312] Reducing Torch parallelism from 7 threads to 1 to avoid unnecessary CPU contention. Set OMP_NUM_THREADS in the external environment to tune this value as needed.
+6: INFO 03-17 15:12:56 custom_cache_manager.py:17] Setting Triton cache manager to: vllm.triton_utils.custom_cache_manager:CustomCacheManager
+7: INFO 03-17 15:12:56 custom_cache_manager.py:17] Setting Triton cache manager to: vllm.triton_utils.custom_cache_manager:CustomCacheManager
+5: INFO 03-17 15:12:58 selector.py:134] Using ROCmFlashAttention backend.
+4: INFO 03-17 15:12:58 selector.py:134] Using ROCmFlashAttention backend.
+2: [1;36m(VllmWorkerProcess pid=17220)[0;0m INFO 03-17 15:12:59 selector.py:134] Using ROCmFlashAttention backend.
+2: [1;36m(VllmWorkerProcess pid=17221)[0;0m INFO 03-17 15:12:59 selector.py:134] Using ROCmFlashAttention backend.
+2: [1;36m(VllmWorkerProcess pid=17220)[0;0m INFO 03-17 15:12:59 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+2: [1;36m(VllmWorkerProcess pid=17219)[0;0m INFO 03-17 15:12:59 selector.py:134] Using ROCmFlashAttention backend.
+3: [1;36m(VllmWorkerProcess pid=17291)[0;0m INFO 03-17 15:12:59 selector.py:134] Using ROCmFlashAttention backend.
+2: [1;36m(VllmWorkerProcess pid=17221)[0;0m INFO 03-17 15:12:59 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+3: [1;36m(VllmWorkerProcess pid=17292)[0;0m INFO 03-17 15:12:59 selector.py:134] Using ROCmFlashAttention backend.
+3: [1;36m(VllmWorkerProcess pid=17293)[0;0m INFO 03-17 15:12:59 selector.py:134] Using ROCmFlashAttention backend.
+2: [1;36m(VllmWorkerProcess pid=17219)[0;0m INFO 03-17 15:12:59 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+3: [1;36m(VllmWorkerProcess pid=17291)[0;0m INFO 03-17 15:12:59 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+3: [1;36m(VllmWorkerProcess pid=17292)[0;0m INFO 03-17 15:12:59 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+3: [1;36m(VllmWorkerProcess pid=17293)[0;0m INFO 03-17 15:12:59 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+2: INFO 03-17 15:12:59 utils.py:915] Found nccl from library librccl.so.1
+2: INFO 03-17 15:12:59 pynccl.py:69] vLLM is using nccl==2.20.5
+2: [1;36m(VllmWorkerProcess pid=17221)[0;0m INFO 03-17 15:12:59 utils.py:915] Found nccl from library librccl.so.1
+2: [1;36m(VllmWorkerProcess pid=17219)[0;0m INFO 03-17 15:12:59 utils.py:915] Found nccl from library librccl.so.1
+2: [1;36m(VllmWorkerProcess pid=17221)[0;0m INFO 03-17 15:12:59 pynccl.py:69] vLLM is using nccl==2.20.5
+2: [1;36m(VllmWorkerProcess pid=17219)[0;0m INFO 03-17 15:12:59 pynccl.py:69] vLLM is using nccl==2.20.5
+2: [1;36m(VllmWorkerProcess pid=17220)[0;0m INFO 03-17 15:12:59 utils.py:915] Found nccl from library librccl.so.1
+2: [1;36m(VllmWorkerProcess pid=17220)[0;0m INFO 03-17 15:12:59 pynccl.py:69] vLLM is using nccl==2.20.5
+3: INFO 03-17 15:12:59 utils.py:915] Found nccl from library librccl.so.1
+3: INFO 03-17 15:12:59 pynccl.py:69] vLLM is using nccl==2.20.5
+3: [1;36m(VllmWorkerProcess pid=17292)[0;0m INFO 03-17 15:12:59 utils.py:915] Found nccl from library librccl.so.1
+3: [1;36m(VllmWorkerProcess pid=17293)[0;0m INFO 03-17 15:12:59 utils.py:915] Found nccl from library librccl.so.1
+3: [1;36m(VllmWorkerProcess pid=17291)[0;0m INFO 03-17 15:12:59 utils.py:915] Found nccl from library librccl.so.1
+3: [1;36m(VllmWorkerProcess pid=17293)[0;0m INFO 03-17 15:12:59 pynccl.py:69] vLLM is using nccl==2.20.5
+3: [1;36m(VllmWorkerProcess pid=17292)[0;0m INFO 03-17 15:12:59 pynccl.py:69] vLLM is using nccl==2.20.5
+3: [1;36m(VllmWorkerProcess pid=17291)[0;0m INFO 03-17 15:12:59 pynccl.py:69] vLLM is using nccl==2.20.5
+7: INFO 03-17 15:13:01 selector.py:134] Using ROCmFlashAttention backend.
+6: INFO 03-17 15:13:01 selector.py:134] Using ROCmFlashAttention backend.
+5: [1;36m(VllmWorkerProcess pid=130325)[0;0m INFO 03-17 15:13:02 selector.py:134] Using ROCmFlashAttention backend.
+4: [1;36m(VllmWorkerProcess pid=130316)[0;0m INFO 03-17 15:13:02 selector.py:134] Using ROCmFlashAttention backend.
+5: [1;36m(VllmWorkerProcess pid=130326)[0;0m INFO 03-17 15:13:02 selector.py:134] Using ROCmFlashAttention backend.
+5: [1;36m(VllmWorkerProcess pid=130325)[0;0m INFO 03-17 15:13:02 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+4: [1;36m(VllmWorkerProcess pid=130315)[0;0m INFO 03-17 15:13:02 selector.py:134] Using ROCmFlashAttention backend.
+4: [1;36m(VllmWorkerProcess pid=130314)[0;0m INFO 03-17 15:13:02 selector.py:134] Using ROCmFlashAttention backend.
+5: [1;36m(VllmWorkerProcess pid=130324)[0;0m INFO 03-17 15:13:02 selector.py:134] Using ROCmFlashAttention backend.
+4: [1;36m(VllmWorkerProcess pid=130316)[0;0m INFO 03-17 15:13:02 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+5: [1;36m(VllmWorkerProcess pid=130326)[0;0m INFO 03-17 15:13:02 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+4: [1;36m(VllmWorkerProcess pid=130315)[0;0m INFO 03-17 15:13:02 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+5: [1;36m(VllmWorkerProcess pid=130324)[0;0m INFO 03-17 15:13:02 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+4: [1;36m(VllmWorkerProcess pid=130314)[0;0m INFO 03-17 15:13:02 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+2: INFO 03-17 15:13:02 utils.py:482] Port 8000 is already in use, trying port 8001
+3: INFO 03-17 15:13:02 utils.py:482] Port 8100 is already in use, trying port 8101
+2: INFO 03-17 15:13:02 shm_broadcast.py:255] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer_handle=(3, 4194304, 6, 'psm_48ab6523'), local_subscribe_port=8001, remote_subscribe_port=None)
+3: INFO 03-17 15:13:02 shm_broadcast.py:255] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer_handle=(3, 4194304, 6, 'psm_e07454ab'), local_subscribe_port=8101, remote_subscribe_port=None)
+2: INFO 03-17 15:13:02 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+2: [1;36m(VllmWorkerProcess pid=17220)[0;0m INFO 03-17 15:13:02 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+2: [1;36m(VllmWorkerProcess pid=17219)[0;0m INFO 03-17 15:13:02 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+2: [1;36m(VllmWorkerProcess pid=17221)[0;0m INFO 03-17 15:13:02 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+3: [1;36m(VllmWorkerProcess pid=17291)[0;0m INFO 03-17 15:13:02 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+3: INFO 03-17 15:13:02 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+3: [1;36m(VllmWorkerProcess pid=17292)[0;0m INFO 03-17 15:13:02 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+3: [1;36m(VllmWorkerProcess pid=17293)[0;0m INFO 03-17 15:13:02 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+5: [1;36m(VllmWorkerProcess pid=130325)[0;0m INFO 03-17 15:13:02 utils.py:915] Found nccl from library librccl.so.1
+5: [1;36m(VllmWorkerProcess pid=130325)[0;0m INFO 03-17 15:13:02 pynccl.py:69] vLLM is using nccl==2.20.5
+5: INFO 03-17 15:13:02 utils.py:915] Found nccl from library librccl.so.1
+5: INFO 03-17 15:13:02 pynccl.py:69] vLLM is using nccl==2.20.5
+5: [1;36m(VllmWorkerProcess pid=130324)[0;0m INFO 03-17 15:13:02 utils.py:915] Found nccl from library librccl.so.1
+5: [1;36m(VllmWorkerProcess pid=130326)[0;0m INFO 03-17 15:13:02 utils.py:915] Found nccl from library librccl.so.1
+5: [1;36m(VllmWorkerProcess pid=130326)[0;0m INFO 03-17 15:13:02 pynccl.py:69] vLLM is using nccl==2.20.5
+5: [1;36m(VllmWorkerProcess pid=130324)[0;0m INFO 03-17 15:13:02 pynccl.py:69] vLLM is using nccl==2.20.5
+4: INFO 03-17 15:13:02 utils.py:915] Found nccl from library librccl.so.1
+4: [1;36m(VllmWorkerProcess pid=130314)[0;0m INFO 03-17 15:13:02 utils.py:915] Found nccl from library librccl.so.1
+4: [1;36m(VllmWorkerProcess pid=130314)[0;0m INFO 03-17 15:13:02 pynccl.py:69] vLLM is using nccl==2.20.5
+4: INFO 03-17 15:13:02 pynccl.py:69] vLLM is using nccl==2.20.5
+4: [1;36m(VllmWorkerProcess pid=130315)[0;0m INFO 03-17 15:13:02 utils.py:915] Found nccl from library librccl.so.1
+4: [1;36m(VllmWorkerProcess pid=130315)[0;0m INFO 03-17 15:13:02 pynccl.py:69] vLLM is using nccl==2.20.5
+4: [1;36m(VllmWorkerProcess pid=130316)[0;0m INFO 03-17 15:13:02 utils.py:915] Found nccl from library librccl.so.1
+4: [1;36m(VllmWorkerProcess pid=130316)[0;0m INFO 03-17 15:13:02 pynccl.py:69] vLLM is using nccl==2.20.5
+7: [1;36m(VllmWorkerProcess pid=49191)[0;0m INFO 03-17 15:13:05 selector.py:134] Using ROCmFlashAttention backend.
+7: [1;36m(VllmWorkerProcess pid=49193)[0;0m INFO 03-17 15:13:05 selector.py:134] Using ROCmFlashAttention backend.
+7: [1;36m(VllmWorkerProcess pid=49192)[0;0m INFO 03-17 15:13:05 selector.py:134] Using ROCmFlashAttention backend.
+3: INFO 03-17 15:13:05 weight_utils.py:243] Using model weights format ['*.safetensors']
+2: INFO 03-17 15:13:05 weight_utils.py:243] Using model weights format ['*.safetensors']
+2: [1;36m(VllmWorkerProcess pid=17221)[0;0m INFO 03-17 15:13:05 weight_utils.py:243] Using model weights format ['*.safetensors']
+7: [1;36m(VllmWorkerProcess pid=49191)[0;0m INFO 03-17 15:13:05 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+3: [1;36m(VllmWorkerProcess pid=17293)[0;0m INFO 03-17 15:13:05 weight_utils.py:243] Using model weights format ['*.safetensors']
+7: [1;36m(VllmWorkerProcess pid=49193)[0;0m INFO 03-17 15:13:05 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+2: [1;36m(VllmWorkerProcess pid=17220)[0;0m INFO 03-17 15:13:05 weight_utils.py:243] Using model weights format ['*.safetensors']
+7: [1;36m(VllmWorkerProcess pid=49192)[0;0m INFO 03-17 15:13:05 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+2: [1;36m(VllmWorkerProcess pid=17219)[0;0m INFO 03-17 15:13:05 weight_utils.py:243] Using model weights format ['*.safetensors']
+7: [1;36m(VllmWorkerProcess pid=49192)[0;0m INFO 03-17 15:13:05 utils.py:915] Found nccl from library librccl.so.1
+7: INFO 03-17 15:13:05 utils.py:915] Found nccl from library librccl.so.1
+7: [1;36m(VllmWorkerProcess pid=49192)[0;0m INFO 03-17 15:13:05 pynccl.py:69] vLLM is using nccl==2.20.5
+7: INFO 03-17 15:13:05 pynccl.py:69] vLLM is using nccl==2.20.5
+7: [1;36m(VllmWorkerProcess pid=49191)[0;0m INFO 03-17 15:13:05 utils.py:915] Found nccl from library librccl.so.1
+7: [1;36m(VllmWorkerProcess pid=49193)[0;0m INFO 03-17 15:13:05 utils.py:915] Found nccl from library librccl.so.1
+7: [1;36m(VllmWorkerProcess pid=49191)[0;0m INFO 03-17 15:13:05 pynccl.py:69] vLLM is using nccl==2.20.5
+7: [1;36m(VllmWorkerProcess pid=49193)[0;0m INFO 03-17 15:13:05 pynccl.py:69] vLLM is using nccl==2.20.5
+6: [1;36m(VllmWorkerProcess pid=49183)[0;0m INFO 03-17 15:13:05 selector.py:134] Using ROCmFlashAttention backend.
+6: [1;36m(VllmWorkerProcess pid=49182)[0;0m INFO 03-17 15:13:05 selector.py:134] Using ROCmFlashAttention backend.
+6: [1;36m(VllmWorkerProcess pid=49181)[0;0m INFO 03-17 15:13:05 selector.py:134] Using ROCmFlashAttention backend.
+6: [1;36m(VllmWorkerProcess pid=49183)[0;0m INFO 03-17 15:13:05 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+6: [1;36m(VllmWorkerProcess pid=49182)[0;0m INFO 03-17 15:13:05 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+6: [1;36m(VllmWorkerProcess pid=49181)[0;0m INFO 03-17 15:13:05 multiproc_worker_utils.py:222] Worker ready; awaiting tasks
+6: INFO 03-17 15:13:06 utils.py:915] Found nccl from library librccl.so.1
+6: [1;36m(VllmWorkerProcess pid=49182)[0;0m INFO 03-17 15:13:06 utils.py:915] Found nccl from library librccl.so.1
+6: INFO 03-17 15:13:06 pynccl.py:69] vLLM is using nccl==2.20.5
+6: [1;36m(VllmWorkerProcess pid=49182)[0;0m INFO 03-17 15:13:06 pynccl.py:69] vLLM is using nccl==2.20.5
+6: [1;36m(VllmWorkerProcess pid=49181)[0;0m INFO 03-17 15:13:06 utils.py:915] Found nccl from library librccl.so.1
+6: [1;36m(VllmWorkerProcess pid=49183)[0;0m INFO 03-17 15:13:06 utils.py:915] Found nccl from library librccl.so.1
+6: [1;36m(VllmWorkerProcess pid=49181)[0;0m INFO 03-17 15:13:06 pynccl.py:69] vLLM is using nccl==2.20.5
+6: [1;36m(VllmWorkerProcess pid=49183)[0;0m INFO 03-17 15:13:06 pynccl.py:69] vLLM is using nccl==2.20.5
+4: INFO 03-17 15:13:06 utils.py:482] Port 8000 is already in use, trying port 8001
+5: INFO 03-17 15:13:06 utils.py:482] Port 8100 is already in use, trying port 8101
+4: INFO 03-17 15:13:06 shm_broadcast.py:255] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer_handle=(3, 4194304, 6, 'psm_2a3cc1e3'), local_subscribe_port=8001, remote_subscribe_port=None)
+5: INFO 03-17 15:13:06 shm_broadcast.py:255] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer_handle=(3, 4194304, 6, 'psm_bf21b72b'), local_subscribe_port=8101, remote_subscribe_port=None)
+5: INFO 03-17 15:13:06 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+5: [1;36m(VllmWorkerProcess pid=130324)[0;0m INFO 03-17 15:13:06 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+5: [1;36m(VllmWorkerProcess pid=130326)[0;0m INFO 03-17 15:13:06 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+5: [1;36m(VllmWorkerProcess pid=130325)[0;0m INFO 03-17 15:13:06 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+4: [1;36m(VllmWorkerProcess pid=130315)[0;0m INFO 03-17 15:13:06 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+4: INFO 03-17 15:13:06 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+4: [1;36m(VllmWorkerProcess pid=130314)[0;0m INFO 03-17 15:13:06 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+4: [1;36m(VllmWorkerProcess pid=130316)[0;0m INFO 03-17 15:13:06 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+3: [1;36m(VllmWorkerProcess pid=17291)[0;0m INFO 03-17 15:13:07 weight_utils.py:243] Using model weights format ['*.safetensors']
+5: INFO 03-17 15:13:08 weight_utils.py:243] Using model weights format ['*.safetensors']
+4: INFO 03-17 15:13:08 weight_utils.py:243] Using model weights format ['*.safetensors']
+5: [1;36m(VllmWorkerProcess pid=130325)[0;0m INFO 03-17 15:13:08 weight_utils.py:243] Using model weights format ['*.safetensors']
+4: [1;36m(VllmWorkerProcess pid=130315)[0;0m INFO 03-17 15:13:08 weight_utils.py:243] Using model weights format ['*.safetensors']
+5: [1;36m(VllmWorkerProcess pid=130326)[0;0m INFO 03-17 15:13:08 weight_utils.py:243] Using model weights format ['*.safetensors']
+5: [1;36m(VllmWorkerProcess pid=130324)[0;0m INFO 03-17 15:13:08 weight_utils.py:243] Using model weights format ['*.safetensors']
+4: [1;36m(VllmWorkerProcess pid=130316)[0;0m INFO 03-17 15:13:08 weight_utils.py:243] Using model weights format ['*.safetensors']
+4: [1;36m(VllmWorkerProcess pid=130314)[0;0m INFO 03-17 15:13:09 weight_utils.py:243] Using model weights format ['*.safetensors']
+6: INFO 03-17 15:13:09 utils.py:482] Port 8000 is already in use, trying port 8001
+6: INFO 03-17 15:13:09 shm_broadcast.py:255] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer_handle=(3, 4194304, 6, 'psm_05fe6b3c'), local_subscribe_port=8001, remote_subscribe_port=None)
+7: INFO 03-17 15:13:09 utils.py:482] Port 8100 is already in use, trying port 8101
+7: INFO 03-17 15:13:09 shm_broadcast.py:255] vLLM message queue communication handle: Handle(connect_ip='127.0.0.1', local_reader_ranks=[1, 2, 3], buffer_handle=(3, 4194304, 6, 'psm_f66b8533'), local_subscribe_port=8101, remote_subscribe_port=None)
+6: [1;36m(VllmWorkerProcess pid=49181)[0;0m INFO 03-17 15:13:09 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+6: INFO 03-17 15:13:09 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+6: [1;36m(VllmWorkerProcess pid=49183)[0;0m INFO 03-17 15:13:09 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+6: [1;36m(VllmWorkerProcess pid=49182)[0;0m INFO 03-17 15:13:09 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+7: [1;36m(VllmWorkerProcess pid=49191)[0;0m INFO 03-17 15:13:09 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+7: INFO 03-17 15:13:09 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+7: [1;36m(VllmWorkerProcess pid=49192)[0;0m INFO 03-17 15:13:09 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+7: [1;36m(VllmWorkerProcess pid=49193)[0;0m INFO 03-17 15:13:09 model_runner.py:1092] Starting to load model meta-llama/Llama-3.3-70B-Instruct...
+3: [1;36m(VllmWorkerProcess pid=17292)[0;0m INFO 03-17 15:13:09 weight_utils.py:243] Using model weights format ['*.safetensors']
+6: INFO 03-17 15:13:11 weight_utils.py:243] Using model weights format ['*.safetensors']
+6: [1;36m(VllmWorkerProcess pid=49182)[0;0m INFO 03-17 15:13:11 weight_utils.py:243] Using model weights format ['*.safetensors']
+7: [1;36m(VllmWorkerProcess pid=49191)[0;0m INFO 03-17 15:13:11 weight_utils.py:243] Using model weights format ['*.safetensors']
+6: [1;36m(VllmWorkerProcess pid=49183)[0;0m INFO 03-17 15:13:11 weight_utils.py:243] Using model weights format ['*.safetensors']
+6: [1;36m(VllmWorkerProcess pid=49181)[0;0m INFO 03-17 15:13:11 weight_utils.py:243] Using model weights format ['*.safetensors']
+7: INFO 03-17 15:13:11 weight_utils.py:243] Using model weights format ['*.safetensors']
+7: [1;36m(VllmWorkerProcess pid=49192)[0;0m INFO 03-17 15:13:11 weight_utils.py:243] Using model weights format ['*.safetensors']
+7: [1;36m(VllmWorkerProcess pid=49193)[0;0m INFO 03-17 15:13:11 weight_utils.py:243] Using model weights format ['*.safetensors']
+0: ERROR 03-17 15:13:26 multiproc_worker_utils.py:123] Worker VllmWorkerProcess pid 96842 died, exit code: -15
+0: INFO 03-17 15:13:26 multiproc_worker_utils.py:127] Killing local vLLM worker processes
