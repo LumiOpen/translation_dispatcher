@@ -20,8 +20,8 @@
 # If you update GPUS_PER_TASK you must also update SBATCH --ntasks-per-node to
 # the correct number of tasks per node. basically, int(8 / GPUS_PER_TASK)
 
-INPUT_FILE=tulu3-sft-dedup-700k_translation_input.jsonl
-OUTPUT_FILE=tulu3-sft-dedup-700k_translation_output.jsonl
+INPUT_FILE=oasst2_translation_input_fin.jsonl
+OUTPUT_FILE=oasst2_translation_output_fin.jsonl
 
 # jq-like path string to find the prompt within the jsonl row.
 PROMPT_PATH='content'

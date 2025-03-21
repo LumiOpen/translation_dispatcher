@@ -12,11 +12,11 @@
 module use /appl/local/csc/modulefiles/
 module load pytorch
 
-trg_lang_3char="dan"
+trg_lang_3char="fin"
 
 python preprocess.py \
-        --input_file tulu3-sft-dedup-700k.jsonl \
-        --translation_input_file tulu3-sft-dedup-700k_translation_input_$trg_lang_3char.jsonl \
-        --preprocessed_file tulu3-sft-dedup-700k_preprocessed_$trg_lang_3char.jsonl \
+        --input_file oasst2.jsonl \
+        --translation_input_file oasst2_translation_input_$trg_lang_3char.jsonl \
+        --preprocessed_file oasst2_preprocessed_$trg_lang_3char.jsonl \
         --trg_lang $trg_lang_3char \
         --prompt_format user_assistant \
