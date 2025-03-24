@@ -25,7 +25,7 @@ PROMPT_PATH='.messages[0].content'
 
 # Prompting mode is "chat" or "completion"
 MODE=chat
-STOP_TOKEN="\n\n"  # only used in "completion" mode.
+STOP_WORD=$'\n\n'  # $'' format allows escape chars to be interpreted.
 
 # generation parameters
 BATCH_SIZE=64       # number of prompts in a batch
@@ -45,7 +45,7 @@ TEMPERATURE=0.8
 #
 MODEL=meta-llama/Llama-3.3-70B-Instruct
 GPUS_PER_TASK=4     # enough for the model and large batch size
-MAX_MODEL_LEN=16384 # let's cut off here
+MAX_MODEL_LEN=16384 # only as much as you think you need for efficiency
 MAX_TOKENS=4096     # max tokens to generate
 
 # end configuration
@@ -60,7 +60,7 @@ unset PYTHONNOUSERSITE
 unset PYTHONEXECUTABLE
 
 # set up environment
-mkdir -p logs output pythonuserbase
+mkdir -p logs pythonuserbase
 export PYTHONUSERBASE=./pythonuserbase
 module use /appl/local/csc/modulefiles
 module load pytorch
@@ -71,6 +71,7 @@ pip install git+https://github.com/LumiOpen/dispatcher.git
 export DISPATCHER_SERVER=$(hostname)
 export DISPATCHER_PORT=9999
 
+
 python -m dispatcher.server \
     --infile $INPUT_FILE \
     --outfile $OUTPUT_FILE \
@@ -79,7 +80,8 @@ python -m dispatcher.server \
 
 sleep 10
 
-srun -l bash -c '
+srun -l \
+    bash -c '
     # Compute the starting GPU index for this task.
     # SLURM_LOCALID is the index of the task on this node.
     start_gpu=$(( SLURM_LOCALID * '"$GPUS_PER_TASK"' ))
@@ -107,7 +109,7 @@ srun -l bash -c '
         --dispatcher_server ${DISPATCHER_SERVER}:${DISPATCHER_PORT} \
         --prompt_path "'"$PROMPT_PATH"'" \
         --mode '"$MODE"' \
-        --stop_token "'"$STOP_TOKEN"'" \
+        --stop_word "'"$STOP_WORD"'" \
         --num_generations '"$NUM_GENERATIONS"' \
         --max_model_len '"$MAX_MODEL_LEN"' \
         --max_tokens '"$MAX_TOKENS"' \

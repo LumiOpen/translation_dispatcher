@@ -20,7 +20,7 @@ class Generator:
         min_p: float = 0.05,
         max_tokens: int = 4096,
         mode: str = "chat",
-        stop_token: str = "\n\n",
+        stop_word: str = "\n\n",
     ):
         self.model = LLM(
             model=model_path,
@@ -37,11 +37,11 @@ class Generator:
             top_p=top_p,
             min_p=min_p,
             max_tokens=max_tokens,
-            stop=None if mode == "chat" else [stop_token]
+            stop=None if mode == "chat" else [stop_word]
         )
 
         self.mode = mode
-        self.stop_token = stop_token
+        self.stop_word = stop_word
 
     def generate_responses(self, prompts: list[str]) -> list[list[str]]:
         """Generate responses for multiple prompts in a batch.
@@ -231,8 +231,8 @@ def main():
     # chat/completion mode
     parser.add_argument('--mode', type=str, default="chat", choices=["chat", "completion"],
                         help='Generation mode: chat (default) or completion')
-    parser.add_argument('--stop_token', type=str, default="\n\n",
-                        help='Stop token for completion mode (default: "\\n\\n")')
+    parser.add_argument('--stop_word', type=str, default="\n\n",
+                        help='Stop word for completion mode (default: "\\n\\n")')
 
     # Dispatcher and batch parameters
     parser.add_argument('--dispatcher_server', type=str, required=True,
@@ -252,7 +252,7 @@ def main():
         min_p=args.min_p,
         max_tokens=args.max_tokens,
         mode=args.mode,
-        stop_token=args.stop_token,
+        stop_word=args.stop_word,
     )
 
     client = WorkClient(args.dispatcher_server)
