@@ -2,8 +2,9 @@
 #SBATCH --job-name=inference
 #SBATCH --nodes=4
 #SBATCH --partition=dev-g
-#SBATCH --time=00-01:00:00
+#SBATCH --time=00-02:00:00
 #SBATCH --ntasks-per-node=2
+#SBATCH --mem=480G
 #SBATCH --cpus-per-task=7
 #SBATCH --exclusive=user
 #SBATCH --hint=nomultithread
@@ -16,49 +17,60 @@
 ###
 # configure the following.
 
-# If you update GPUS_PER_TASK you must also update SBATCH --ntasks-per-node to
-# the correct number of tasks per node. basically, int(8 / GPUS_PER_TASK)
-
 INPUT_FILE=input.jsonl
 OUTPUT_FILE=output.jsonl
 
-# jq-like path string to find the prompt within the jsonl row.
+# jq-like path string to find the prompt within the input jsonl row.
 PROMPT_PATH='.messages[0].content'
 
+# Prompting mode is "chat" or "completion"
+MODE=chat
+STOP_WORD=$'\n\n'  # $'' format allows escape chars to be interpreted.
+
 # generation parameters
-BATCH_SIZE=4       # number of prompts in a batch
-NUM_GENERATIONS=16 # generations per prompt
+BATCH_SIZE=64       # number of prompts in a batch
+NUM_GENERATIONS=1   # generations per prompt
 
 # sampling params
 MIN_P=0.05
 TOP_P=1.00
 TEMPERATURE=0.8
 
-MODEL=meta-llama/Llama-3.3-70B-Instruct
-MAX_MODEL_LEN=16384 # let's cut off here
-MAX_TOKENS=4096     # max tokens to gneerate
 
-GPUS_PER_TASK=4    # enough for the model and large batch size
 #
-# BE SURE TO UPDATE SBATCH --ntasks-per-node to work with GPUS_PER_TASK
+# If you are changing the model, be sure to update GPUS_PER_TASK and the
+# sbatch --ntasks-per-node configuration appropriately.
+# Typically on Lumi 70B = 4 GPUs, 34B = 2 GPUs, 8B = 1 GPU
+# --ntasks-per-node should be int(8 / GPUS_PER_TASK)
 #
+MODEL=meta-llama/Llama-3.3-70B-Instruct
+GPUS_PER_TASK=4     # enough for the model and large batch size
+MAX_MODEL_LEN=16384 # only as much as you think you need for efficiency
+MAX_TOKENS=4096     # max tokens to generate
 
 # end configuration
-###
+###################
 
+# clean up any venv that might be inherited from the launch environment.
+unset VIRTUAL_ENV
+unset PYTHONHOME
+unset PYTHONPATH
+unset PYTHONSTARTUP
+unset PYTHONNOUSERSITE
+unset PYTHONEXECUTABLE
 
+# set up environment
+mkdir -p logs pythonuserbase
+export PYTHONUSERBASE=./pythonuserbase
+module use /appl/local/csc/modulefiles
+module load pytorch
+pip install git+https://github.com/LumiOpen/dispatcher.git
+
+# dispatcher server will run on the first node, before we launch the worker
+# tasks.
 export DISPATCHER_SERVER=$(hostname)
 export DISPATCHER_PORT=9999
 
-mkdir -p logs output pythonuserbase
-export PYTHONUSERBASE=./pythonuserbase
-
-module use /appl/local/csc/modulefiles
-module load pytorch
-
-pip install git+https://github.com/LumiOpen/dispatcher.git
-#pip install --upgrade transformers vllm
-#source /scratch/project_462000353/jburdge/venv/bin/activate
 
 python -m dispatcher.server \
     --infile $INPUT_FILE \
@@ -68,7 +80,8 @@ python -m dispatcher.server \
 
 sleep 10
 
-srun -l bash -c '
+srun -l \
+    bash -c '
     # Compute the starting GPU index for this task.
     # SLURM_LOCALID is the index of the task on this node.
     start_gpu=$(( SLURM_LOCALID * '"$GPUS_PER_TASK"' ))
@@ -95,6 +108,8 @@ srun -l bash -c '
         --batch_size '"$BATCH_SIZE"' \
         --dispatcher_server ${DISPATCHER_SERVER}:${DISPATCHER_PORT} \
         --prompt_path "'"$PROMPT_PATH"'" \
+        --mode '"$MODE"' \
+        --stop_word "'"$STOP_WORD"'" \
         --num_generations '"$NUM_GENERATIONS"' \
         --max_model_len '"$MAX_MODEL_LEN"' \
         --max_tokens '"$MAX_TOKENS"' \
