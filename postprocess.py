@@ -13,6 +13,11 @@ fasttext.FastText.eprint = lambda x: None
 lid_model = fasttext.load_model(FASTTEXT_LID_BINARY)
 
 TOKENS_TO_REMOVE = ["<|user|>", "END", "Käännä suomeksi" , "Translate into"]
+USER_TOKEN = "<|user|>"
+ASSISTANT_TOKEN = "<|assistant|>"
+
+# remove samples with these words (case-insensitive)
+FORBIDDEN_WORDS = ["openai", "mistral", "chatgpt", "tulu", "deepseek"]
 
 def argparser():
     ap = ArgumentParser()
@@ -42,13 +47,21 @@ def check_compression(text, ratio_threshold=0.3):
         valid_text = False
     return valid_text
 
-def check_untranslated_line(translated_text):
-    #print("--- check_untranslated_line ---")
-    detected_lang, prob = detect_language(translated_text)
-    if detected_lang == 'en':
-        return False
-    else:
-        return True
+def get_translation_length_ratio(translated_text, orig_text, max_len_ratio=1.5):
+    valid_text = True
+    if (len(translated_text) / len(orig_text)) > max_len_ratio:
+        valid_text = False
+    return valid_text
+
+def extract_orig_sent_row(row):
+    prompt = row['content']
+    orig_sent = prompt[prompt.rfind(USER_TOKEN)+len(USER_TOKEN):prompt.rfind(ASSISTANT_TOKEN)].strip()
+    return orig_sent
+
+
+def check_length_row(row):
+    length_ok = get_translation_length_ratio(row['translation'], row['orig_text'])
+    return length_ok
 
 def check_untranslated_row(row):    
     detected_lang, prob = detect_language(row['translation'])
@@ -79,22 +92,25 @@ def main(argv):
     df_translate = pd.read_json(open(args.translation_output_file), lines=True)
     # remove extra text artifacts the Poro/Viking/Europa sometimes produces
     df_translate = df_translate.apply(remove_extra_text_in_translation_row, axis=1)
-    # merge translations and the rest of the preprocessed data
-    print("Merging dataframes")
+    # extract orig text from preproc data
+    df_all['orig_sent'] = df_all.apply(extract_orig_sent_row, axis=1)
     df_merged = pd.merge(df_all, df_translate, on=['sample_id', 'line_id'], how='left')
     df_merged['translation'] = df_merged.apply(lambda row: row['translation_y'] if pd.notnull(row['translation_y']) else row['translation_x'], axis=1)
     sample_ids = sorted(df_merged.sample_id.unique())
-    print("Combining translated lines")
+    # print("Combining translated lines")
     df_final = {'translation':[]}
     for i, sample_id in enumerate(sample_ids):
         translation = "\n".join(list(df_merged[df_merged.sample_id==sample_id].translation))
-        df_final['translation'].append(translation)
+        orig_text = "\n".join(list(df_merged[df_merged.sample_id==sample_id].orig_sent))
+        df_final['translation'].append(translation.strip())
+        df_final['orig_text'].append(orig_text.strip())
     df_final = pd.DataFrame.from_dict(df_final)
-    print("Checking lang_id and compression")
+    # print("Checking lang_id and compression")
     df_final['lang_id_ok'] = df_final.apply(check_untranslated_row, axis=1)
     df_final['compression_ok'] = df_final.apply(check_compression_row, axis=1)
-    df_final = df_final[(df_final.lang_id_ok==True) & (df_final.compression_ok==True)]
-    print("Writing rows to file")
+    df_final['length_ok'] = df_final.apply(check_length_row, axis=1)
+    df_final = df_final[(df_final.lang_id_ok==True) & (df_final.compression_ok==True) & (df_final.length_ok==True)]
+    # print("Writing rows to file")
     with open(args.final_output_file, 'w') as outfile:
         for index, row in df_final.iterrows():
             entry = {'messages':[{'role':'user', 'content':row['translation'].strip()}]}

@@ -122,7 +122,7 @@ def prepare_content_for_translation(content, sample_id, trg_lang, few_shot_promp
                         if "```" in paragraph:
                             paragraph = "\n\n" + paragraph.strip()
                         content_all.append({
-                                                'content':paragraph, 
+                                                'content':paragraph,
                                                 'translate':False,
                                                 'sample_id': sample_id,
                                                 'line_id': line_id,
