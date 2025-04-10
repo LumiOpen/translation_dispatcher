@@ -215,5 +215,45 @@ class TestDataTracker(unittest.TestCase):
         self.assertEqual(r5[1], "row_content_3")
         dt2.close()
 
+    def test_load_from_checkpoint_with_unsubmitted_work(self):
+        """
+        Test the behavior of the DataTracker when there is pending work that has been issued
+        but not submitted before a checkpoint is written. The test ensures that upon loading
+        from the checkpoint:
+          - The DataTracker correctly resumes from the last processed work ID.
+          - Issued but unsubmitted work is not incorrectly marked as processed.
+          - The input offset and next work ID are consistent with the checkpoint state.
+        """
+        dt1 = DataTracker(self.infile.name, self.outfile.name, self.checkpoint,
+                          work_timeout=WORK_TIMEOUT, checkpoint_interval=CHECKPOINT_INTERVAL)
+        r0, = dt1.get_work_batch()  # row 0
+        dt1.complete_work_batch([(r0[0], "result_0")])
+        r1, = dt1.get_work_batch()  # row 1
+        dt1.complete_work_batch([(r1[0], "result_1")])
+        r2, = dt1.get_work_batch()  # row 2
+        dt1.complete_work_batch([(r2[0], "result_2")])
+
+        # Now request additional work but don't submit it.
+        r3, = dt1.get_work_batch()  # row 3
+        r4, = dt1.get_work_batch()  # row 4
+
+        # Write a checkpoint now; it records last_processed_work_id==2.
+        dt1._write_checkpoint()
+
+        # checkpoint should reflect the earlier state
+        with open(self.checkpoint, "r") as f:
+            cp = json.load(f)
+        self.assertEqual(cp.get("last_processed_work_id"), 2)
+
+        # Now load a new tracker and it continues from the last written record
+        dt2 = DataTracker(self.infile.name, self.outfile.name, self.checkpoint,
+                          work_timeout=WORK_TIMEOUT, checkpoint_interval=CHECKPOINT_INTERVAL)
+        self.assertEqual(dt2.last_processed_work_id, 2)
+        self.assertEqual(dt2.next_work_id, 3)
+        r5, = dt2.get_work_batch()
+        self.assertEqual(r5[0], 3)
+        self.assertEqual(r5[1], "row_content_3")
+        dt2.close()
+
 if __name__ == "__main__":
     unittest.main()

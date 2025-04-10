@@ -177,7 +177,7 @@ class DataTracker:
     def _write_checkpoint(self):
         cp = {
             "last_processed_work_id": self.last_processed_work_id,
-            "input_offset": self.infile.tell(),
+            "input_offset": self.input_offset,
             "output_offset": self.outfile.tell()
         }
         temp_path = self.checkpoint_path + ".tmp"
