@@ -149,7 +149,7 @@ class DataTracker:
                 self._write_checkpoint()
                 self.last_checkpoint_time = now
                 logging.info(f"Checkpoint: last_processed_work_id={self.last_processed_work_id}, "
-                             f"input_offset={self.infile.tell()}, output_offset={self.outfile.tell()}, "
+                             f"input_offset={self.input_offset}, output_offset={self.outfile.tell()}, "
                              f"issued={len(self.issued)}, pending={len(self.pending_write)}, "
                              f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")
 
@@ -192,7 +192,7 @@ class DataTracker:
             # Write a final checkpoint and log status before shutting down.
             self._write_checkpoint()
             logging.info(f"Final checkpoint written: last_processed_work_id={self.last_processed_work_id}, "
-                         f"input_offset={self.infile.tell()}, output_offset={self.outfile.tell()}, "
+                         f"input_offset={self.input_offset}, output_offset={self.outfile.tell()}, "
                          f"issued={len(self.issued)}, pending={len(self.pending_write)}, "
                          f"heap_size={len(self.issued_heap)}, expired_reissues={self.expired_reissues}")
             self.infile.close()
