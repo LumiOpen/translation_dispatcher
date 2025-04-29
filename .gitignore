@@ -3,3 +3,5 @@ __pycache__
 .*.sw*
 *.jsonl
 *.jsonl.checkpoint
+logs/
+pythonuserbase/
