@@ -53,7 +53,12 @@ class TaskManager:
                     # 2. Try to get requests from existing tasks
                     self._schedule_requests_from_tasks(executor, backend_manager)
                     
-                    # 3. If workers aren't busy and we have room for more tasks, get more
+                    # 3. Check if we're at or above the task limit for warning purposes
+                    if len(self.active_tasks) >= self.max_active_tasks and not self._warned_about_task_limit:
+                        self.logger.warning(f"Exceeding suggested maximum active tasks limit ({self.max_active_tasks})")
+                        self._warned_about_task_limit = True
+                    
+                    # 4. If workers aren't busy and we have room for more tasks, get more
                     if (len(self.pending_futures) < self.num_workers and 
                         len(self.active_tasks) < self.max_active_tasks and 
                         not task_source.is_exhausted):
@@ -64,19 +69,14 @@ class TaskManager:
                         new_tasks = task_source.get_next_tasks()
                         
                         if new_tasks:
-                            # Check if we'd exceed the limit for warning purposes only
-                            if len(self.active_tasks) + len(new_tasks) > self.max_active_tasks and not self._warned_about_task_limit:
-                                self.logger.warning(f"Exceeding suggested maximum active tasks limit ({self.max_active_tasks})")
-                                self._warned_about_task_limit = True
-                            
                             # Add all new tasks (never discard any)
                             self.active_tasks.extend(new_tasks)
                             self.logger.info(f"Added {len(new_tasks)} new tasks. Total active: {len(self.active_tasks)}")
                     
-                    # 4. Handle completed tasks
+                    # 5. Handle completed tasks
                     self._handle_completed_tasks(task_source)
                     
-                    # 5. Check if we're done
+                    # 6. Check if we're done
                     if self._should_terminate(task_source):
                         self.logger.info("All work completed. Exiting.")
                         break
