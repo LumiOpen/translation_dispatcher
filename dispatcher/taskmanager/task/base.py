@@ -1,3 +1,8 @@
+from abc import ABC, abstractmethod
+from typing import Any, Optional, Dict, Tuple
+
+from ..backend.request import Request, Response
+
 class Task(ABC):
     """
     Base class for all tasks.
@@ -6,30 +11,42 @@ class Task(ABC):
     This is a requirement, but not enforced by the base class.
     """
     
-    @property
-    @abstractmethod
-    def id(self) -> Any:
-        """Unique identifier for this task."""
-        pass
+    def __init__(self, data: Dict[str, Any], context: Any = None):
+        """
+        Initialize a task with data and context.
+        
+        Args:
+            data: The task data to process
+            context: Context object to be passed through with results
+        """
+        self.data = data
+        self.context = context
     
     @abstractmethod
-    def get_next_request(self) -> Optional[Any]:
+    def get_next_request(self) -> Optional[Request]:
         """
         Returns the next request to be processed, or None 
         if no more requests are immediately available.
         
         Tasks MUST have at least one request immediately available when created.
+        
+        Returns:
+            A Request object containing the content and context needed for processing,
+            or None if no more requests are available.
         """
         pass
     
     @abstractmethod
-    def process_result(self, request: Any, result: Any) -> None:
-        """Process a successful result for a previously issued request."""
-        pass
-    
-    @abstractmethod
-    def process_failure(self, request: Any, error: Exception) -> None:
-        """Handle a failure that occurred while processing a request."""
+    def process_result(self, response: Response) -> None:
+        """
+        Process a response from the backend.
+        
+        Args:
+            response: The response from the backend, which includes:
+                - The original request
+                - The result content if successful
+                - Error information if processing failed
+        """
         pass
     
     @abstractmethod
@@ -38,6 +55,11 @@ class Task(ABC):
         pass
     
     @abstractmethod
-    def get_result(self) -> Any:
-        """Returns the final result of the task."""
+    def get_result(self) -> Tuple[Dict[str, Any], Any]:
+        """
+        Returns the final result of the task and the original context.
+        
+        Returns:
+            A tuple containing (result_data, context)
+        """
         pass

@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
-import time
+
+from dispatcher.taskmanager.taskmanager import TaskManager
+from tests.taskmanager.mocks import MockTaskSource, MockBackendManager
 
 class TestTaskManager(unittest.TestCase):
     
@@ -18,7 +20,8 @@ class TestTaskManager(unittest.TestCase):
         
         # Verify results
         self.assertEqual(len(task_source.saved_results), 5)
-        self.assertEqual(len(backend_manager.processed), 15)  # 5 tasks * 3 requests each
+        self.assertEqual(len(task_source.saved_contexts), 5)
+        self.assertEqual(len(backend_manager.processed_requests), 15)  # 5 tasks * 3 requests each
     
     def test_backend_failures(self):
         """Test that TaskManager handles backend failures."""
@@ -36,10 +39,10 @@ class TestTaskManager(unittest.TestCase):
         self.assertEqual(len(task_source.saved_results), 3)
         
         # Check that some requests failed
-        self.assertTrue(any(len(result["failures"]) > 0 for result in task_source.saved_results))
+        self.assertTrue(any(bool(result["failures"]) for result in task_source.saved_results))
     
-    def test_max_active_tasks(self):
-        """Test that TaskManager respects the max_active_tasks limit."""
+    def test_max_active_tasks_warning(self):
+        """Test that TaskManager logs a warning when exceeding max_active_tasks limit, but still processes all tasks."""
         # Create a lot of tasks but a low limit
         task_source = MockTaskSource(20)
         backend_manager = MockBackendManager()
@@ -49,12 +52,16 @@ class TestTaskManager(unittest.TestCase):
         
         # Mock the logger to capture warnings
         with patch('logging.Logger.warning') as mock_warning:
-            # Process some tasks (not all, to avoid waiting for everything to complete)
+            # Mock _should_terminate to exit early after processing enough tasks to exceed the limit
             with patch.object(TaskManager, '_should_terminate', side_effect=[False, False, True]):
                 task_manager.process_tasks(task_source, backend_manager)
             
             # Verify we got the warning about task limit
-            mock_warning.assert_called_with("Reached maximum active tasks limit (3)")
+            mock_warning.assert_called_with("Exceeding suggested maximum active tasks limit (3)")
+            
+            # Even with early termination, we should have more tasks than the limit
+            # since we don't discard any tasks
+            self.assertGreater(len(backend_manager.processed_requests), 3)
     
     def test_task_source_exhaustion(self):
         """Test that TaskManager exits when the task source is exhausted."""

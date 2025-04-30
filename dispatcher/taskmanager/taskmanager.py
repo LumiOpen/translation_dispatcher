@@ -1,3 +1,13 @@
+import logging
+import time
+from concurrent.futures import ThreadPoolExecutor
+from typing import List, Dict, Tuple, Any
+
+from .task.base import Task
+from .tasksource.base import TaskSource
+from .backend.base import BackendManager
+from .backend.request import Request, Response
+
 class TaskManager:
     """
     Manages execution of tasks using worker threads.
@@ -18,7 +28,7 @@ class TaskManager:
         self.max_active_tasks = max_active_tasks
         
         self.active_tasks: List[Task] = []
-        self.pending_futures: Dict[Future, Tuple[Task, Any]] = {}
+        self.pending_futures: Dict[Any, Tuple[Task, Request]] = {}
         self._warned_about_task_limit = False
         
         self.logger = logging.getLogger(__name__)
@@ -54,14 +64,12 @@ class TaskManager:
                         new_tasks = task_source.get_next_tasks()
                         
                         if new_tasks:
-                            # Check if we'd exceed the limit
-                            if len(self.active_tasks) + len(new_tasks) > self.max_active_tasks:
-                                # Only take what we can fit
-                                new_tasks = new_tasks[:self.max_active_tasks - len(self.active_tasks)]
-                                if not self._warned_about_task_limit:
-                                    self.logger.warning(f"Reached maximum active tasks limit ({self.max_active_tasks})")
-                                    self._warned_about_task_limit = True
+                            # Check if we'd exceed the limit for warning purposes only
+                            if len(self.active_tasks) + len(new_tasks) > self.max_active_tasks and not self._warned_about_task_limit:
+                                self.logger.warning(f"Exceeding suggested maximum active tasks limit ({self.max_active_tasks})")
+                                self._warned_about_task_limit = True
                             
+                            # Add all new tasks (never discard any)
                             self.active_tasks.extend(new_tasks)
                             self.logger.info(f"Added {len(new_tasks)} new tasks. Total active: {len(self.active_tasks)}")
                     
@@ -91,19 +99,18 @@ class TaskManager:
             
             try:
                 # Get the result (will raise if the future failed)
-                result = future.result()
+                response = future.result()
                 
-                # Pass the result to the task
-                task.process_result(request, result)
-                self.logger.debug(f"Processed result for task {task.id}")
+                # Pass the response to the task
+                task.process_result(response)
+                self.logger.debug(f"Processed result for task")
                 
             except Exception as e:
-                # Handle errors in the future execution
-                self.logger.error(f"Error processing request for task {task.id}: {e}")
-                try:
-                    task.process_failure(request, e)
-                except Exception as failure_e:
-                    self.logger.exception(f"Error during failure handling for task {task.id}: {failure_e}")
+                # This shouldn't normally happen as the backend should wrap errors in a Response
+                self.logger.error(f"Unexpected error in future execution: {e}")
+                # Create an error response and pass it to the task
+                error_response = Response.from_error(request, e)
+                task.process_result(error_response)
     
     def _schedule_requests_from_tasks(self, executor, backend_manager):
         """Schedule requests from tasks until all workers are busy."""
@@ -116,10 +123,10 @@ class TaskManager:
                 
                 request = task.get_next_request()
                 if request is not None:
-                    # Submit the request to the executor
+                    # Submit the request to the backend
                     future = executor.submit(backend_manager.process, request)
                     self.pending_futures[future] = (task, request)
-                    self.logger.debug(f"Submitted request for task {task.id}")
+                    self.logger.debug(f"Submitted request for task")
                     break
             else:
                 # We checked all tasks and none had requests available
@@ -137,9 +144,9 @@ class TaskManager:
             try:
                 # Save the result
                 task_source.save_task_result(task)
-                self.logger.info(f"Saved result for task {task.id}")
+                self.logger.info(f"Saved task result")
             except Exception as e:
-                self.logger.exception(f"Error saving result for task {task.id}: {e}")
+                self.logger.exception(f"Error saving task result: {e}")
             
             # Remove the task from active tasks
             self.active_tasks.pop(i)

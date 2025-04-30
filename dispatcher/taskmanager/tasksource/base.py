@@ -1,3 +1,8 @@
+from abc import ABC, abstractmethod
+from typing import List, Any
+
+from ..task.base import Task
+
 class TaskSource(ABC):
     """
     Source of tasks and destination for results.
@@ -16,6 +21,7 @@ class TaskSource(ABC):
     def save_task_result(self, task: Task) -> None:
         """
         Save the result of a completed task.
+        The result and context are retrieved from the task.
         """
         pass
     

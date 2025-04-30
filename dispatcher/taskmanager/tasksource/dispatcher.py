@@ -1,7 +1,17 @@
+import json
+import logging
+from typing import List
+
+from dispatcher.client import WorkClient
+from dispatcher.models import WorkStatus
+
+from ..task.base import Task
+from .base import TaskSource
+
 class DispatcherTaskSource(TaskSource):
     """Task source that uses a Dispatcher server for task distribution and result collection."""
     
-    def __init__(self, dispatcher_server: str, task_class: Type[Task], batch_size: int = 1):
+    def __init__(self, dispatcher_server: str, task_class: type, batch_size: int = 1):
         """
         Initialize a Dispatcher-based task source.
         
@@ -26,8 +36,6 @@ class DispatcherTaskSource(TaskSource):
             raise
         
         self._is_exhausted = False
-        self.task_id_counter = 0
-        self.task_to_work_item = {}  # Maps task IDs to their dispatcher work items
     
     def get_next_tasks(self) -> List[Task]:
         """Get up to batch_size tasks from the Dispatcher server."""
@@ -43,23 +51,19 @@ class DispatcherTaskSource(TaskSource):
                 for work_item in resp.items:
                     try:
                         # Parse the JSON content
-                        task_data = json.loads(work_item.content)
+                        try:
+                            task_data = json.loads(work_item.content)
+                        except json.JSONDecodeError as e:
+                            self.logger.error(f"Error parsing JSON for work item {work_item.work_id}: {e}")
+                            # Return an error to the dispatcher
+                            work_item.set_result(json.dumps({"error": f"Failed to parse JSON: {e}"}))
+                            self.client.submit_results([work_item])
+                            continue
                         
-                        # Create a task
-                        task_id = self.task_id_counter
-                        self.task_id_counter += 1
-                        
-                        task = self.task_class(task_id, task_data)
+                        # Create a task with the data and work_item as context
+                        task = self.task_class(task_data, context=work_item)
                         tasks.append(task)
                         
-                        # Store the mapping from task to work item
-                        self.task_to_work_item[task_id] = work_item
-                        
-                    except json.JSONDecodeError as e:
-                        self.logger.error(f"Error parsing JSON for work item {work_item.work_id}: {e}")
-                        # Return an error to the dispatcher
-                        work_item.set_result(json.dumps({"error": f"Failed to parse JSON: {e}"}))
-                        self.client.submit_results([work_item])
                     except Exception as e:
                         self.logger.exception(f"Error creating task for work item {work_item.work_id}: {e}")
                         # Return an error to the dispatcher
@@ -82,31 +86,26 @@ class DispatcherTaskSource(TaskSource):
             self.logger.exception(f"Error getting work from Dispatcher: {e}")
             return []
     
-    def save_task_result(self, task: Task):
+    def save_task_result(self, task: Task) -> None:
         """Save task result back to the Dispatcher server."""
-        task_id = task.id
-        if task_id not in self.task_to_work_item:
-            self.logger.error(f"No work item found for task {task_id}")
-            return
-        
         try:
-            # Get the work item for this task
-            work_item = self.task_to_work_item.pop(task_id)
+            # Get the result and context from the task
+            result, context = task.get_result()
             
-            # Get the task result
-            result = task.get_result()
+            # The context should be the original work_item
+            work_item = context
             
             # Set the result on the work item
             work_item.set_result(json.dumps(result))
             
             # Submit back to the dispatcher
             self.client.submit_results([work_item])
-            self.logger.info(f"Submitted result for task {task_id} back to Dispatcher")
+            self.logger.info(f"Submitted result for work item {work_item.work_id} back to Dispatcher")
             
         except Exception as e:
-            self.logger.exception(f"Error saving result for task {task_id} to Dispatcher: {e}")
+            self.logger.exception(f"Error saving task result: {e}")
     
     @property
-    def is_exhausted(self):
+    def is_exhausted(self) -> bool:
         """Check if the Dispatcher has no more work available."""
         return self._is_exhausted

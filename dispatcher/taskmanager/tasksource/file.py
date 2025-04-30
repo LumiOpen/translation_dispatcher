@@ -1,7 +1,14 @@
+import json
+import logging
+from typing import List, Dict, Any
+
+from ..task.base import Task
+from .base import TaskSource
+
 class FileTaskSource(TaskSource):
     """Task source that reads from a file and writes results to another file."""
     
-    def __init__(self, input_file: str, output_file: str, task_class: Type[Task], batch_size: int = 1):
+    def __init__(self, input_file: str, output_file: str, task_class: type, batch_size: int = 1):
         """
         Initialize a file-based task source.
         
@@ -28,7 +35,7 @@ class FileTaskSource(TaskSource):
             raise
         
         self._is_exhausted = False
-        self.task_id_counter = 0
+        self.line_number = 0
     
     def get_next_tasks(self) -> List[Task]:
         """Get up to batch_size tasks from the input file."""
@@ -46,24 +53,30 @@ class FileTaskSource(TaskSource):
                 self._is_exhausted = True
                 break
             
+            line_number = self.line_number
+            self.line_number += 1
             lines_read += 1
             
             try:
                 # Parse the input line
                 task_data = json.loads(line)
                 
-                # Create a new task
-                task_id = self.task_id_counter
-                self.task_id_counter += 1
+                # Create context with line information
+                context = {
+                    "line_number": line_number,
+                    "input_file": self.input_file_path,
+                    "output_file": self.output_file_path
+                }
                 
-                task = self.task_class(task_id, task_data)
+                # Create a new task with data and context
+                task = self.task_class(task_data, context)
                 tasks.append(task)
                 
             except json.JSONDecodeError as e:
-                self.logger.error(f"Error parsing JSON from line {lines_read}: {e}")
+                self.logger.error(f"Error parsing JSON from line {line_number}: {e}")
                 # Skip bad lines and continue
             except Exception as e:
-                self.logger.exception(f"Error creating task from line {lines_read}: {e}")
+                self.logger.exception(f"Error creating task from line {line_number}: {e}")
                 # Skip problematic lines and continue
         
         if tasks:
@@ -71,22 +84,23 @@ class FileTaskSource(TaskSource):
         
         return tasks
     
-    def save_task_result(self, task: Task):
+    def save_task_result(self, task: Task) -> None:
         """Write task result to the output file."""
         try:
-            # Get result from the task
-            result = task.get_result()
+            # Get result and context from the task
+            result, context = task.get_result()
             
             # Write to output file
             self.output_file.write(json.dumps(result) + "\n")
             self.output_file.flush()
             
-            self.logger.debug(f"Saved result for task {task.id} to output file")
+            line_number = context.get("line_number", "unknown")
+            self.logger.debug(f"Saved result for line {line_number} to output file")
             
         except Exception as e:
-            self.logger.exception(f"Error saving result for task {task.id}: {e}")
+            self.logger.exception(f"Error saving task result: {e}")
     
-    def close(self):
+    def close(self) -> None:
         """Close files."""
         if hasattr(self, 'input_file') and self.input_file:
             self.input_file.close()
@@ -98,11 +112,11 @@ class FileTaskSource(TaskSource):
             
         self.logger.info("Closed input and output files")
     
-    def __del__(self):
+    def __del__(self) -> None:
         """Ensure resources are cleaned up."""
         self.close()
     
     @property
-    def is_exhausted(self):
+    def is_exhausted(self) -> bool:
         """Check if we've reached the end of the input file."""
         return self._is_exhausted
