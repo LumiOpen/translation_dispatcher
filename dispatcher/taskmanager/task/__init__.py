@@ -1,3 +1,3 @@
-from .base import Task
+from .base import Task, GeneratorTask
 
 __all__ = ['Task', 'GeneratorTask']
