@@ -19,7 +19,11 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "dispatcher-server=dispatcher.server:main",
+            # starts the FastAPI/uvicorn server
+            "dispatcher-server = dispatcher.server:main",
+
+            # generic task-runner CLI
+            "dispatcher-task-run = dispatcher.taskmanager.cli:main",
         ],
     },
 )

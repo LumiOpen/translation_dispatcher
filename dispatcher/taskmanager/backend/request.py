@@ -52,3 +52,21 @@ class Response:
     def from_error(cls, request: Request, error: Exception) -> 'Response':
         """Create a response representing an error."""
         return cls(request=request, content=None, error=error)
+
+    def get_text(self) -> Optional[str]:
+        """Extracts model response text from standard response formats.
+
+        Works for both *chat* and *text* completion payloads.  Returns *None*
+        if extraction fails or ``self.content`` is not a dict.
+        """
+        if not isinstance(self.content, dict):
+            return None
+        try:
+            # Chat completion schema
+            return self.content["choices"][0]["message"]["content"]
+        except Exception:
+            try:
+                # Text completion schema
+                return self.content["choices"][0]["text"]
+            except Exception:
+                return None
