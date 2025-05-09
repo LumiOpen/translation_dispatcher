@@ -303,7 +303,7 @@ def main():
             # Set results for each work item
             for result in results:
                 work_item = result.pop("_work_item")  # Remove the work item reference
-                work_item.set_result(json.dumps(result))
+                work_item.set_result(json.dumps(result, ensure_ascii=False))
 
             # Submit all results back to the dispatcher
             client.submit_results(work_batch)
