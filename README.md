@@ -1,5 +1,27 @@
 # Dispatcher
 
+Dispatcher exists to simplify running large-scale inference workflows in
+a batch compute environment.
+
+Specifically, it simplifies:
+1. Scaling up to hundreds of inference workers simultaneously
+2. Keeping inference backends busy with work to make efficient use of compute
+3. Splitting up work across many workers without needing to pre-partition data
+4. Task resumption after timeouts or crashes with minimal lost work
+5. Complex multi-step inference workflows.
+
+The system is built around the dispatcher server, which functions as a simple
+work queue manager and work dispatcher, but the most advanced features come
+from the task manager subsystem which allows complex multi-step inference
+workflows to be written in simple declarative fashion and scheduling
+efficiently while hiding all of the complexity.
+
+Below is some information about the Dispatcher server itself, but it would be
+most useful to head to the `examples/` directory to see examples of simple,
+realistic implementations built around it.
+
+## Dispatcher server
+
 Simple library to dispatch work from a large line-oriented file (jsonl) for
 distributed workers without pre-apportioning work.
 
