@@ -71,7 +71,7 @@ class DispatcherTaskSource(TaskSource):
                         self.client.submit_results([work_item])
                 
                 if tasks:
-                    self.logger.info(f"Created {len(tasks)} new tasks from Dispatcher")
+                    self.logger.debug(f"Created {len(tasks)} new tasks from Dispatcher")
                 return tasks
                 
             elif resp.status == WorkStatus.ALL_WORK_COMPLETE:
@@ -100,7 +100,7 @@ class DispatcherTaskSource(TaskSource):
             
             # Submit back to the dispatcher
             self.client.submit_results([work_item])
-            self.logger.info(f"Submitted result for work item {work_item.work_id} back to Dispatcher")
+            self.logger.debug(f"Submitted result for work item {work_item.work_id} back to Dispatcher")
             
         except Exception as e:
             self.logger.exception(f"Error saving task result: {e}")

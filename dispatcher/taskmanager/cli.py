@@ -7,17 +7,17 @@ Supports **two task sources** out of the box:
 
 Example – local file test
 ------------------------
->>> dispatcher-run \
+>>> dispatcher-task-run \
         --task task.MyTask \
         --input input.jsonl --output out.jsonl \
-        --model meta-llama/Llama-3.3-8B-Instruct
+        --model meta-llama/Llama-3.1-8B-Instruct
 
 Example – distributed run with Dispatcher server
 ------------------------------------------------
->>> dispatcher-run \
+>>> dispatcher-task-run \
         --task mypkg.tasks.ChatTask \
         --dispatcher $(hostname):9999 \
-        --model meta-llama/Llama-3.3-70B-Instruct
+        --model meta-llama/Llama-3.1-8B-Instruct
 
 Users who prefer Python can also import ``run`` directly::
 
@@ -44,6 +44,7 @@ from dispatcher.taskmanager.tasksource import FileTaskSource, DispatcherTaskSour
 from dispatcher.taskmanager.task.base import Task
 
 logger = logging.getLogger(__name__)
+
 
 ###############################################################################
 # Internal helpers
@@ -94,13 +95,25 @@ def run(
     launch_vllm: bool = True,
     tensor_parallel: int = 1,
     max_model_len: int = 16_384,
+    startup_timeout: int = 1500,
+    request_timeout: int = 600,
+    silence_vllm_logs: bool = False,
     # task manager params
     workers: int = 16,
     batch_size: int = 4,
-    # extra backend kwargs
-    **backend_kwargs: Any,
 ) -> None:
     """Wire up TaskSource → TaskManager → VLLM backend and process to completion."""
+
+    def show_handlers():
+        for name in logging.root.manager.loggerDict:
+            logger = logging.getLogger(name)
+            if logger.level <= logging.INFO or any(h.level <= logging.INFO for h in logger.handlers):
+                print(f"{name}: level={logger.level}, handlers={logger.handlers}")
+    #show_handlers()
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 
     if dispatcher_url:
         source = DispatcherTaskSource(dispatcher_url, task_cls, batch_size=batch_size)
@@ -118,7 +131,9 @@ def run(
         launch_server=launch_vllm,
         tensor_parallel_size=tensor_parallel,
         max_model_len=max_model_len,
-        **backend_kwargs,
+        startup_timeout=startup_timeout,
+        request_timeout=request_timeout,
+        disable_output=silence_vllm_logs,
     )
 
     _install_signal_handlers(backend)
@@ -136,7 +151,7 @@ def run(
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="dispatcher-run",
-        description="Generic CLI runner for Dispatcher TaskManager jobs",
+        description="CLI for Dispatcher TaskManager jobs",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -158,6 +173,9 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-launch", action="store_true", help="Do not start a vLLM server (connect only)")
     p.add_argument("--tensor-parallel", type=int, default=1, help="Tensor parallel degree")
     p.add_argument("--max-model-len", type=int, default=16_384, help="Max context length override")
+    p.add_argument("--startup-timeout", type=int, default=1500, help="Maximum time to wait for vllm server to start")
+    p.add_argument("--request-timeout", type=int, default=600, help="Maximum time to wait for a request")
+    p.add_argument("--silence-vllm-logs", action="store_true", help="Suppress all logging from vllm")
 
     # manager & batches
     p.add_argument("--workers", type=int, default=16)
@@ -183,6 +201,9 @@ def main(argv: Optional[list[str]] = None):
         launch_vllm=not args.no_launch,
         tensor_parallel=args.tensor_parallel,
         max_model_len=args.max_model_len,
+        startup_timeout=args.startup_timeout,
+        request_timeout=args.request_timeout,
+        silence_vllm_logs=args.silence_vllm_logs,
         workers=args.workers,
         batch_size=args.batch_size,
     )

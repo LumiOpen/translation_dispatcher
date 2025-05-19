@@ -41,7 +41,7 @@ class TaskManager:
             task_source: Source of tasks and destination for results
             backend_manager: Handler for processing requests
         """
-        self.logger.info("TaskManager started")
+        self.logger.debug("TaskManager started")
         
         with ThreadPoolExecutor(max_workers=self.num_workers) as executor:
             try:
@@ -71,7 +71,7 @@ class TaskManager:
                         if new_tasks:
                             # Add all new tasks (never discard any)
                             self.active_tasks.extend(new_tasks)
-                            self.logger.info(f"Added {len(new_tasks)} new tasks. Total active: {len(self.active_tasks)}")
+                            self.logger.debug(f"Added {len(new_tasks)} new tasks. Total active: {len(self.active_tasks)}")
                     
                     # 5. Handle completed tasks
                     self._handle_completed_tasks(task_source)
@@ -144,7 +144,7 @@ class TaskManager:
             try:
                 # Save the result
                 task_source.save_task_result(task)
-                self.logger.info(f"Saved task result")
+                self.logger.debug(f"Saved task result")
             except Exception as e:
                 self.logger.exception(f"Error saving task result: {e}")
             

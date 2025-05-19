@@ -14,7 +14,7 @@ class CompareTwoResponsesTask(GeneratorTask):
     GEN_PARAMS: Dict[str, Any] = {
         "temperature": 0.7,
         "top_p": 0.95,
-        "max_tokens": 512,
+        "max_tokens": 4096,
     }
 
     # Deterministic parameters for the judge

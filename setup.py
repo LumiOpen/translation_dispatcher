@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="dispatcher",
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(),
     install_requires=[
         "fastapi",
@@ -19,11 +19,12 @@ setup(
     },
     entry_points={
         "console_scripts": [
+            # generic task-runner CLI
+            "dispatcher-task-run = dispatcher.taskmanager.cli:main",
+
             # starts the FastAPI/uvicorn server
             "dispatcher-server = dispatcher.server:main",
 
-            # generic task-runner CLI
-            "dispatcher-task-run = dispatcher.taskmanager.cli:main",
         ],
     },
 )

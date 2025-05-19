@@ -98,7 +98,8 @@ def main():
     parser.add_argument("--infile", type=str, required=True, help="Input file path")
     parser.add_argument("--outfile", type=str, required=True, help="Output file path")
     parser.add_argument("--checkpoint", type=str, help="Checkpoint file path")
-    parser.add_argument("--retry", type=int, default=300, help="Retry time in seconds")
+    parser.add_argument("--retry", type=int, default=300, help="Retry time in seconds when no work is available")
+    parser.add_argument("--work-timeout", type=int, default=1200, help="Time in seconds to timeout pending work and reissue it.")
     parser.add_argument("--host", type=str, default="0.0.0.0", help="Host")
     parser.add_argument("--port", type=int, default=8000, help="Port")
     args = parser.parse_args()
@@ -106,9 +107,9 @@ def main():
     global dt, retry_time
     retry_time = args.retry
     checkpoint_path = args.checkpoint if args.checkpoint else args.outfile + ".checkpoint"
-    dt = DataTracker(args.infile, args.outfile, checkpoint_path)
-    logging.info("Server starting with infile=%s, outfile=%s, checkpoint=%s, retry_time=%d",
-                 args.infile, args.outfile, checkpoint_path, retry_time)
+    dt = DataTracker(args.infile, args.outfile, checkpoint_path, work_timeout=args.work_timeout)
+    logging.info("Server starting with infile=%s, outfile=%s, checkpoint=%s, retry_time=%d work_timeout=%d",
+                 args.infile, args.outfile, checkpoint_path, retry_time, args.work_timeout)
 
     uvicorn.run(
         app,

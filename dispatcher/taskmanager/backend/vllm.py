@@ -53,7 +53,8 @@ class VLLMServerManager:
         chat_template: Optional[str],
         max_model_len: Optional[int],
         startup_timeout: int,
-        disable_log_requests: bool = True
+        disable_log_requests: bool = True,
+        disable_output: bool = False
     ) -> 'VLLMServerManager':
         """
         Launches the vLLM OpenAI API server and waits for it to become healthy.
@@ -97,10 +98,15 @@ class VLLMServerManager:
         if max_model_len:
             cmd.extend(["--max-model-len", str(max_model_len)])
 
+        stdout, stderr = subprocess.DEVNULL, subprocess.DEVNULL
+        if not disable_output:
+            stdout, stderr = sys.stdout, sys.stderr
+
+
         logger.info(f"Launching vLLM server with command: {' '.join(cmd)}")
         process = None
         try:
-            process = subprocess.Popen(cmd, stdout=sys.stdout, stderr=sys.stderr, text=True)
+            process = subprocess.Popen(cmd, stdout=stdout, stderr=stderr, text=True)
 
             logger.info(f"vLLM server process started (PID: {process.pid}). Waiting up to {startup_timeout} seconds for health check...")
 
@@ -168,8 +174,9 @@ class VLLMBackendManager(BackendManager):
                  chat_template: Optional[str] = None,
                  max_model_len: Optional[int] = None,
                  startup_timeout: int = 1500,
-                 timeout: int = 300,
-                 health_check_interval: int = 60):
+                 request_timeout: int = 300,
+                 health_check_interval: int = 60,
+                 disable_output: bool = False):
         """
         Initialize a VLLM backend manager.
         
@@ -184,14 +191,15 @@ class VLLMBackendManager(BackendManager):
             chat_template: Path to chat template (if needed)
             max_model_len: Max model length override
             startup_timeout: Seconds to wait for server to start up
-            timeout: Request timeout in seconds
+            request_timeout: Request timeout in seconds
             health_check_interval: How often to perform health checks (in seconds)
+            disable_output: Redirect vllm output to /dev/null
         """
         self.model_name = model_name
         self.host = host
         self.port = port
         self.api_key = api_key
-        self.timeout = timeout
+        self.request_timeout = request_timeout
         self.health_check_interval = health_check_interval
         self.api_url = f"http://{host}:{port}/v1"
         
@@ -213,7 +221,8 @@ class VLLMBackendManager(BackendManager):
                     chat_template=chat_template,
                     max_model_len=max_model_len,
                     startup_timeout=startup_timeout,
-                    disable_log_requests=True
+                    disable_log_requests=True,
+                    disable_output=disable_output,
                 )
                 self.logger.info(f"Launched vLLM server for model {model_name}")
             except Exception as e:
@@ -225,8 +234,8 @@ class VLLMBackendManager(BackendManager):
             self.client = OpenAI(
                 base_url=self.api_url,
                 api_key=self.api_key if self.api_key else "dummy_api_key",
-                timeout=self.timeout,
-                max_retries=0  # We'll handle retries ourselves
+                timeout=self.request_timeout,
+                max_retries=0,
             )
             self.logger.info(f"Initialized OpenAI client for vLLM API at {self.api_url} with model {self.model_name}")
         except Exception as e:
