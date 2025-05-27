@@ -1,6 +1,6 @@
 # Translation Dispatcher
 
-This codebase is based on the [dispatcher codebase](https://github.com/LumiOpen/dispatcher). This is desgined for large translation jobs and uses vLLM for inference.
+This codebase is based on our inference [dispatcher](https://github.com/LumiOpen/dispatcher). This is designed for large translation jobs and uses vLLM for inference.
 
 ### Preprocessing
 
