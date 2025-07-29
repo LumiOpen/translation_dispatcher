@@ -8,9 +8,13 @@ import fasttext
 import pandas as pd
 from argparse import ArgumentParser
 
+# FastText LID
 FASTTEXT_LID_BINARY = "/scratch/project_462000353/zosaelai2/models/lid.176.bin"
 fasttext.FastText.eprint = lambda x: None
 lid_model = fasttext.load_model(FASTTEXT_LID_BINARY)
+# GlotLid
+GLOTLID_PATH = "/scratch/project_462000353/zosaelai2/models/glotlid/model.bin"
+GLOT_MODEL = fasttext.load_model(GLOTLID_PATH)
 
 TOKENS_TO_REMOVE = ["<|user|>", "END", "Käännä suomeksi" , "Translate into"]
 USER_TOKEN = "<|user|>"
@@ -19,13 +23,53 @@ ASSISTANT_TOKEN = "<|assistant|>"
 # remove samples with these words (case-insensitive)
 FORBIDDEN_WORDS = ["openai", "mistral", "chatgpt", "tulu", "deepseek"]
 
+LANGUAGE_CODES = {
+        'bul': ['bul'],
+        'hrv': ['hrv'],
+        'ces': ['ces'],
+        'dan': ['dan'],
+        'nld': ['nld'],
+        'eng': ['eng'],
+        'est': ['ekk','est'],
+        'fin': ['fin'],
+        'fra': ['fra'],
+        'deu': ['deu'],
+        'ell': ['ell'],
+        'hun': ['hun'],
+        'gle': ['gle'],
+        'isl': ['isl'],
+        'ita': ['ita'],
+        'lav': ['lav', 'lvs'],
+        'lit': ['lit'],
+        'mlt': ['mlt'],
+        'nor': ['nor'],
+        'pol': ['pol'],
+        'por': ['por'],
+        'ron': ['ron'],
+        'slk': ['slk'],
+        'slv': ['slv'],
+        'spa': ['spa'],
+        'swe': ['swe']
+}
+
 def argparser():
     ap = ArgumentParser()
     ap.add_argument('--translation_output_file', default="output.jsonl", type=str)
     ap.add_argument('--complete_preprocessed_file', default="output.jsonl", type=str)
     ap.add_argument('--final_output_file', default="output.jsonl", type=str)
     ap.add_argument('--dataset_type', default="sft", type=str, help="dataset types: sft or dpo")
+    ap.add_argument('--target_lang', default="fin", type=str)
+    ap.add_argument('--lang_thresh', default=0.9, type=float, help="threshold for language detection")
+    ap.add_argument('--max_lines_to_load', default=5000000, type=int, help="load N lines at a time to prevent OOM")
     return ap
+
+def detect_language_glotlid(text: str):  
+    # remove newline from input text
+    text = text.replace("\n", " ")
+    lab, score = GLOT_MODEL.predict(text)
+    lang_code = lab[0].split("__")[-1][:3]
+    score = score[0]
+    return lang_code, score
 
 def detect_language(sent: str):
     # remove \n from sentences because fasttext processes by line
@@ -50,9 +94,6 @@ def check_compression(text, ratio_threshold=0.3):
 
 def get_translation_length_ratio(translated_text, orig_text, max_len_ratio=1.5):
     if len(translated_text) == 0 or len(orig_text) == 0:
-        # print("translated_text:", translated_text)
-        # print("orig_text:", orig_text)
-        # print("-----")
         return False
     valid_text = True
     if (len(translated_text) / len(orig_text)) > max_len_ratio:
@@ -82,21 +123,34 @@ def check_length_dpo_row(row):
         length_prompts_ok.append(length_ok)
     return all([length_chosen_ok, length_rejected_ok] + length_prompts_ok)
 
-def check_untranslated_row(row):    
-    detected_lang, prob = detect_language(row['translation'])
-    if detected_lang == 'en':
-        return False
-    else:
+def check_untranslated_text(text, target_lang, thresh):  
+    detected_lang, score = detect_language_glotlid(text)
+    ret_val = detected_lang + " " + str(score)
+    if detected_lang == target_lang and score >= thresh:
         return True
+    else:
+        return False
+    
+def check_untranslated_row(row, target_lang, thresh):  
+    detected_lang, score = detect_language_glotlid(row['translation'])
+    ret_val = target_lang + " " + detected_lang + " " + str(score)
+    # if score > thresh:
+    #     print(f"Text: {row['translation']}")
+    #     print(f"Detected language: {ret_val}")
+    #     print("--------------------")
+    if detected_lang in LANGUAGE_CODES[target_lang] and score >= thresh:
+        return True
+    else:
+        return False
     
 def check_untranslated_dpo_row(row):    
-    lang_chosen, prob = detect_language(row['chosen'][0]['content'])
-    lang_rejected, prob = detect_language(row['rejected'][0]['content'])
+    lang_chosen, prob = detect_language_glotlid(row['chosen'][0]['content'])
+    lang_rejected, prob = detect_language_glotlid(row['rejected'][0]['content'])
     langs_prompt = []
     for turn in row['prompt']:
         lang_prompt, prob = detect_language(turn['content'])
         langs_prompt.append(lang_prompt)
-    if 'en' not in langs_prompt and lang_rejected != 'en' and lang_chosen != 'en':
+    if 'eng' not in langs_prompt and lang_rejected != 'eng' and lang_chosen != 'eng':
         return True
     else:
         return False
@@ -126,36 +180,53 @@ def remove_extra_text_in_translation_row(row):
     row['translation'] = remove_extra_text(row['translation'])
     return row
 
+def jsonl_batch_reader(filename, batch_size):
+    with open(filename) as f:
+        while True:
+            lines = []
+            try:
+                for _ in range(batch_size):
+                    lines.append(json.loads(next(f)))
+            except StopIteration:
+                if lines:
+                    yield pd.DataFrame(lines)
+                break
+            if lines:
+                yield pd.DataFrame(lines)
+                
 def main(argv):
     args = argparser().parse_args(argv[1:])
+    print(f"target language: {args.target_lang.upper()} | threshold: {args.lang_thresh}")
     df_all = pd.read_json(open(args.complete_preprocessed_file), lines=True)
     df_translate = pd.read_json(open(args.translation_output_file), lines=True)
-    # remove extra text artifacts the Poro/Viking/Europa sometimes produces
-    df_translate = df_translate.apply(remove_extra_text_in_translation_row, axis=1)
-    # extract orig text from preproc data
-    df_all['orig_sent'] = df_all.apply(extract_orig_sent_row, axis=1)
     if args.dataset_type == 'sft':
         print("Post-processing SFT data")
         df_merged = pd.merge(df_all, df_translate, on=['sample_id', 'line_id'], how='left')
         df_merged['translation'] = df_merged.apply(lambda row: row['translation_y'] if pd.notnull(row['translation_y']) else row['translation_x'], axis=1)
         sample_ids = sorted(df_merged.sample_id.unique())
         # print("Combining translated lines")
-        df_final = {'translation':[]}
+        df_final = {
+                'translation':[],
+                'orig_text':[]
+                }
         for i, sample_id in enumerate(sample_ids):
-            translation = "\n".join(list(df_merged[df_merged.sample_id==sample_id].translation))
-            orig_text = "\n".join(list(df_merged[df_merged.sample_id==sample_id].orig_sent))
+            df_sample = df_merged[df_merged.sample_id==sample_id]
+            translation = "\n".join(list(df_sample.translation))
+            orig_sents = list(df_sample.apply(extract_orig_sent_row, axis=1))
+            orig_text = "\n".join(orig_sents)
             df_final['translation'].append(translation.strip())
             df_final['orig_text'].append(orig_text.strip())
         df_final = pd.DataFrame.from_dict(df_final)
-        # print("Checking lang_id and compression")
-        df_final['lang_id_ok'] = df_final.apply(check_untranslated_row, axis=1)
+        df_final['lang_id_ok'] = df_final.apply(lambda x: check_untranslated_row(x, args.target_lang, args.lang_thresh), axis=1)
         df_final['compression_ok'] = df_final.apply(check_compression_row, axis=1)
         df_final['length_ok'] = df_final.apply(check_length_row, axis=1)
-        df_final = df_final[(df_final.lang_id_ok==True) & (df_final.compression_ok==True) & (df_final.length_ok==True)]
+        df_final = df_final[(df_final.lang_id_ok!=False) & (df_final.compression_ok==True) & (df_final.length_ok==True)]
         print("Writing SFT rows to file")
         with open(args.final_output_file, 'w') as outfile:
             for index, row in df_final.iterrows():
-                entry = {'messages':[{'role':'user', 'content':row['translation'].strip()}]}
+                entry = {'messages':[{'role':'user', 
+                                      'content':row['translation'].strip(),
+                                      'orig_text': row['orig_text']}]}
                 outfile.write(json.dumps(entry, ensure_ascii=False) + "\n")
             print(f"Done! Processed {str(len(sample_ids))} samples. Saved {str(df_final.shape[0])} samples. Final output file written to {args.final_output_file}")
             outfile.close()
@@ -181,9 +252,9 @@ def main(argv):
                     #                         'content':translation.strip(), 
                     #                         'orig_content':orig_text.strip()})
                     df_final[col_name].append([{'role':'assistant',
-                                               'content':translation.strip(),
-                                               'orig_text':orig_text.strip()
-                                               }])
+                                            'content':translation.strip(),
+                                            'orig_text':orig_text.strip()
+                                            }])
                 else:
                     # prompt are multi-turn (each turn has a user and assistant roles)
                     final_prompt = []
@@ -200,9 +271,9 @@ def main(argv):
                             #                            'content':translation.strip(), 
                             #                            'orig_content':orig_text.strip()})
                             final_prompt.append({'role':role,
-                                                 'content':translation.strip(),
-                                                 'orig_text':orig_text.strip()
-                                                 })
+                                                'content':translation.strip(),
+                                                'orig_text':orig_text.strip()
+                                                })
                     df_final['prompt'].append(final_prompt)
         df_final = pd.DataFrame.from_dict(df_final)
         # df_final.to_json(args.final_output_file,  orient="records", lines=True, force_ascii=False)
@@ -215,13 +286,13 @@ def main(argv):
             for index, row in df_final.iterrows():
                 # entry = {'messages':[{'role':'user', 'content':row['translation'].strip()}]}
                 entry = {'prompt': [{'role':msg['role'], 'content': msg['content']} for msg in row['prompt']],
-                         'chosen': [{'role':msg['role'], 'content': msg['content']} for msg in row['chosen']],
-                         'rejected': [{'role':msg['role'], 'content': msg['content']} for msg in row['rejected']]
+                        'chosen': [{'role':msg['role'], 'content': msg['content']} for msg in row['chosen']],
+                        'rejected': [{'role':msg['role'], 'content': msg['content']} for msg in row['rejected']]
                         }
                 outfile.write(json.dumps(entry, ensure_ascii=False) + "\n")
             print(f"Done! Processed {str(len(sample_ids))} samples. Saved {str(df_final.shape[0])} samples. Final output file written to {args.final_output_file}")
             outfile.close()
-        
+            
         
 
 
