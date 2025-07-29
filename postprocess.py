@@ -206,8 +206,9 @@ def main(argv):
         sample_ids = sorted(df_merged.sample_id.unique())
         # print("Combining translated lines")
         df_final = {
-                'translation':[],
-                'orig_text':[]
+                    'translation':[],
+                    'orig_text':[],
+                    'sample_id': []
                 }
         for i, sample_id in enumerate(sample_ids):
             df_sample = df_merged[df_merged.sample_id==sample_id]
@@ -216,6 +217,7 @@ def main(argv):
             orig_text = "\n".join(orig_sents)
             df_final['translation'].append(translation.strip())
             df_final['orig_text'].append(orig_text.strip())
+            df_final['sample_id'].append(sample_id)
         df_final = pd.DataFrame.from_dict(df_final)
         df_final['lang_id_ok'] = df_final.apply(lambda x: check_untranslated_row(x, args.target_lang, args.lang_thresh), axis=1)
         df_final['compression_ok'] = df_final.apply(check_compression_row, axis=1)
@@ -224,9 +226,12 @@ def main(argv):
         print("Writing SFT rows to file")
         with open(args.final_output_file, 'w') as outfile:
             for index, row in df_final.iterrows():
-                entry = {'messages':[{'role':'user', 
+                entry = {'messages':[
+                                    {'role':'user', 
                                       'content':row['translation'].strip(),
-                                      'orig_text': row['orig_text']}]}
+                                      'orig_text': row['orig_text'],}
+                                    ],
+                        'sample_id': row['sample_id']}
                 outfile.write(json.dumps(entry, ensure_ascii=False) + "\n")
             print(f"Done! Processed {str(len(sample_ids))} samples. Saved {str(df_final.shape[0])} samples. Final output file written to {args.final_output_file}")
             outfile.close()
