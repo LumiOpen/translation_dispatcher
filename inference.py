@@ -16,8 +16,6 @@ class Generator:
         tensor_parallel_size: int = 1,
         max_model_len: int = 16384,
         temperature: float = 0.8,
-        top_p: float = 0.95,
-        min_p: float = 0.05,
         max_tokens: int = 4096,
         mode: str = "chat",
         stop_word: str = "\n\n",
@@ -97,7 +95,7 @@ class Generator:
         results = []
         for i, prompt_data in enumerate(prompt_data_batch):
             result = prompt_data.copy()
-            result["responses"] = all_responses[i]
+            result["translation"] = all_responses[i][0]
             results.append(result)
 
         return results
@@ -248,8 +246,6 @@ def main():
         tensor_parallel_size=args.tensor_parallel_size,
         max_model_len=args.max_model_len,
         temperature=args.temperature,
-        top_p=args.top_p,
-        min_p=args.min_p,
         max_tokens=args.max_tokens,
         mode=args.mode,
         stop_word=args.stop_word,
