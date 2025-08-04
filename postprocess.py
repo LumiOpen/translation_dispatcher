@@ -8,13 +8,13 @@ import fasttext
 import pandas as pd
 from argparse import ArgumentParser
 
-# FastText LID
-FASTTEXT_LID_BINARY = "/scratch/project_462000353/zosaelai2/models/lid.176.bin"
-fasttext.FastText.eprint = lambda x: None
-lid_model = fasttext.load_model(FASTTEXT_LID_BINARY)
-# GlotLid
-GLOTLID_PATH = "/scratch/project_462000353/zosaelai2/models/glotlid/model.bin"
-GLOT_MODEL = fasttext.load_model(GLOTLID_PATH)
+#language identifier
+from huggingface_hub import hf_hub_download
+import fasttext
+
+model_path = hf_hub_download(repo_id="cis-lmu/glotlid", filename="model.bin")   
+model_glotlid = fasttext.load_model(model_path)
+
 
 TOKENS_TO_REMOVE = ["<|user|>", "END", "Käännä suomeksi" , "Translate into"]
 USER_TOKEN = "<|user|>"
@@ -63,23 +63,15 @@ def argparser():
     ap.add_argument('--max_lines_to_load', default=5000000, type=int, help="load N lines at a time to prevent OOM")
     return ap
 
-def detect_language_glotlid(text: str):  
-    # remove newline from input text
-    text = text.replace("\n", " ")
-    lab, score = GLOT_MODEL.predict(text)
-    lang_code = lab[0].split("__")[-1][:3]
-    score = score[0]
-    return lang_code, score
-
-def detect_language(sent: str):
-    # remove \n from sentences because fasttext processes by line
-    sent = sent.replace("\n", " ") 
-    pred = lid_model.predict(sent)
-    # get top language
-    lang = pred[0][0].split("__")[-1] 
-    # get prob of top language
-    prob = pred[1][0]
-    return lang, prob
+def detect_language(text:str):
+    """Given a text, it returns the Glotlid prediction as NLLB language code, e.g., Latn-eng
+    """
+    lang_code, score = model_glotlid.predict(text.replace("\n", " "))
+    # extract 639-2 lang code (three-letter code)
+    three_lang_code = lang_code[0].replace("__label__","").replace("_Latn","")
+    # map 639-2 to 639-1 code if available
+    # two_letter_code = GLOT_LANG_DICT.get(three_lang_code, "ERROR")
+    return three_lang_code, score
 
 def check_compression(text, ratio_threshold=0.3):
     valid_text = True
@@ -124,7 +116,7 @@ def check_length_dpo_row(row):
     return all([length_chosen_ok, length_rejected_ok] + length_prompts_ok)
 
 def check_untranslated_text(text, target_lang, thresh):  
-    detected_lang, score = detect_language_glotlid(text)
+    detected_lang, score = detect_language(text)
     ret_val = detected_lang + " " + str(score)
     if detected_lang == target_lang and score >= thresh:
         return True
@@ -132,7 +124,7 @@ def check_untranslated_text(text, target_lang, thresh):
         return False
     
 def check_untranslated_row(row, target_lang, thresh):  
-    detected_lang, score = detect_language_glotlid(row['translation'])
+    detected_lang, score = detect_language(row['translation'])
     ret_val = target_lang + " " + detected_lang + " " + str(score)
     # if score > thresh:
     #     print(f"Text: {row['translation']}")
@@ -144,11 +136,11 @@ def check_untranslated_row(row, target_lang, thresh):
         return False
     
 def check_untranslated_dpo_row(row):    
-    lang_chosen, prob = detect_language_glotlid(row['chosen'][0]['content'])
-    lang_rejected, prob = detect_language_glotlid(row['rejected'][0]['content'])
+    lang_chosen, score = detect_language(row['chosen'][0]['content'])
+    lang_rejected, score = detect_language(row['rejected'][0]['content'])
     langs_prompt = []
     for turn in row['prompt']:
-        lang_prompt, prob = detect_language(turn['content'])
+        lang_prompt, score = detect_language(turn['content'])
         langs_prompt.append(lang_prompt)
     if 'eng' not in langs_prompt and lang_rejected != 'eng' and lang_chosen != 'eng':
         return True
