@@ -13,6 +13,7 @@ module use /appl/local/csc/modulefiles/
 module load pytorch/2.5
 
 python postprocess.py \
-        --translation_output_file tulu3-sft-700k_translation_output_fin.jsonl  \
-        --complete_preprocessed_file tulu3-sft-700k_preprocessed_fin.jsonl  \
-        --final_output_file tulu3-sft-700k_final_fin.jsonl
+        --translation_output_file $translate_output_file  \
+        --complete_preprocessed_file $preprocessed_file  \
+        --final_output_file $final_output_file \
+        --dataset_type $dataset_type \  

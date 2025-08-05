@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=preproc  # Job name
+#SBATCH --job-name=preproc_${trg}  # Job name
 #SBATCH --output=logs/%j.out # Name of stdout output file
 #SBATCH --error=logs/%j.err  # Name of stderr error file
 #SBATCH --partition=debug       # Partition (queue) name
@@ -12,16 +12,15 @@
 module use /appl/local/csc/modulefiles/
 module load pytorch/2.5
 
-
+echo "Preprocessing $input_file"
 python preprocess.py \
-        --input_file /scratch/project_462000353/posttraining_data/SFTTrainer_format/eng/tulu-3-sft-mixture-rip/llama-70B-scored-with-orig-best/train.jsonl \
-        --translation_input_file tulu3-sft-700k_translation_input_fin.jsonl \
-        --preprocessed_file tulu3-sft-700k_preprocessed_fin.jsonl \
-        --trg_lang fin \
+        --input_file $input_file \
+        --translation_input_file $translate_input_file \
+        --preprocessed_file $preprocessed_file \
+        --trg_lang $lang \
         --prompt_format user_assistant \
         --n_shot 8 \
-        --dataset_type sft \
+        --dataset_type $dataset_type \
         --roles_to_translate user \
-
 
 

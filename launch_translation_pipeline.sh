@@ -22,26 +22,25 @@ dataset_type="$4"
 preprocessed_filename=preprocessed_${trg_lang}_$filename
 translate_input_filename=translation_input_${trg_lang}_$filename
 translate_output_filename=translation_output_${trg_lang}_$filename
+final_output_filename=final_output_${trg_lang}_$filename
 echo "preprocessed_filename: $preprocessed_filename"
 echo "translate_input_filename: $translate_input_filename"
 echo "translate_output_filename: $translate_output_filename"
-echo "dataset_type: $dataset_type"
+echo "final_output_filename: $final_output_filename"
 
 
 echo "-----------------------------"
 echo "Running translation pipeline"
 echo "-----------------------------"
 echo "| PREPROCESSING "
-job_id=$(sbatch --job-name="preproc_$trg_lang" --export=input_file=$input_file,translate_input_file=$translate_input_filename,preprocessed_file=$preprocessed_filename,lang=$trg_lang,dataset_type=$dataset_type launch_preprocess.sh | awk '{print $4}')
-echo "|--> Submitted preprocessing job | Job ID: $job_id"
-echo "|--> Waiting for preprocessing job to finish"
-# Wait until the job is no longer in the queue
-while squeue -j $job_id > /dev/null 2>&1 && squeue -j $job_id | grep -q "$job_id"; do
-    echo "|--> Preproc job $job_id is still running..."
-    sleep 10  # wait 10 seconds before checking again
-done
-echo "|--> Preproc job $job_id has FINISHED."
-
+preproc_job_id=$(sbatch --job-name="pre_$trg_lang" --export=input_file=$input_file,translate_input_file=$translate_input_filename,preprocessed_file=$preprocessed_filename,lang=$trg_lang,dataset_type=$dataset_type launch_scripts/launch_preprocess.sh | awk '{print $4}')
+echo "|--> Submitted preprocessing job with ID: $preproc_job_id"
 echo "| TRANSLATION"
-job_id=$(sbatch --job-name="translate_$trg_lang" --export=translate_input_file=$translate_input_filename,translate_output_file=$translate_output_filename,model_name=$model_name launch_inference.sh | awk '{print $4}')
-echo "|--> Submitted translation job | Job ID: $job_id"
+translate_job_id=$(sbatch --dependency=afterok:$preproc_job_id --job-name="translate_${trg_lang}" --export=translate_input_file=$translate_input_filename,translate_output_file=$translate_output_filename launch_scripts/launch_inference.sh | awk '{print $4}')
+echo "|--> Submitted translation job with ID: $translate_job_id"
+echo "| POSTPROCESSING"
+postproc_job_id=$(sbatch --dependency=afterok:$translate_job_id --job-name="post_${trg_lang}" --export=translate_output_file=$translate_output_filename,preprocessed_file=$preprocessed_filename,final_output_file=$final_output_filename,dataset_type=$dataset_type launch_scripts/launch_postprocess.sh | awk '{print $4}')
+echo "|--> Submitted postprocessing job with ID: $postproc_job_id"
+echo "-------------------------------"
+echo "Translation pipeline jobs SUBMITTED "
+echo "-------------------------------"

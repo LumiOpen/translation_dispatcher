@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=inference
+#SBATCH --job-name=translate_${trg}
 #SBATCH --nodes=2
 #SBATCH --partition=standard-g
 #SBATCH --time=48:00:00
@@ -15,8 +15,9 @@
 
 ###
 # configure the following.
-INPUT_FILE=tulu3-sft-700k_translation_input_fin.jsonl
-OUTPUT_FILE=tulu3-sft-700k_translation_output_fin.jsonl
+INPUT_FILE=$translate_input_file
+OUTPUT_FILE=$translate_output_file
+echo "OUTPUT_FILE: $OUTPUT_FILE"
 
 # jq-like path string to find the prompt within the input jsonl row.
 PROMPT_PATH='content'
@@ -39,7 +40,7 @@ TEMPERATURE=0
 # Typically on Lumi 70B = 4 GPUs, 34B = 2 GPUs, 8B = 1 GPU
 # --ntasks-per-node should be int(8 / GPUS_PER_TASK)
 #
-MODEL=LumiOpen/Poro-34B
+MODEL=$model_name
 GPUS_PER_TASK=2     # enough for the model and large batch size
 MAX_MODEL_LEN=4096 # only as much as you think you need for efficiency
 MAX_TOKENS=4096     # max tokens to generate
@@ -63,6 +64,7 @@ module load pytorch/2.5
 
 # export SING_IMAGE=/pfs/lustrep4/appl/local/csc/soft/ai/images/pytorch_2.7.1_lumi_vllm-0.8.5.post1.sif
 export HF_HOME="/scratch/project_462000353/hf_cache"
+# source /scratch/project_462000353/zosaelai2/.dispatcher_venv/bin/activate 
 pip install git+https://github.com/LumiOpen/dispatcher.git
 
 
