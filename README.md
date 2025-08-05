@@ -2,6 +2,18 @@
 
 This codebase is based on our inference [dispatcher](https://github.com/LumiOpen/dispatcher). This is designed for large translation jobs and uses vLLM for inference.
 
+## Launching translation pipeline
+
+`launch_translation_pipeline.sh` will launch the slurm jobs for the translation pipeline (preprocessing, inference, postprocessing) automatically.
+
+**Running the pipeline**
+```
+sh launch_translation_pipeline.sh <model> <path_to_input_file> <trg_lang> <dataset_type>
+sh launch_translation_pipeline.sh LumiOpen/Poro-34B sample_sft.jsonl fin sft
+```
+
+## Running the pipeline (step-by-step)
+
 ### Preprocessing
 
 (1) The preprocessing script splits a text sample into lines (anything separated by "\n"). 
