@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=translate_${trg}
-#SBATCH --nodes=2
-#SBATCH --partition=standard-g
-#SBATCH --time=48:00:00
+#SBATCH --job-name=translation
+#SBATCH --nodes=1
+#SBATCH --partition=dev-g
+#SBATCH --time=00:40:00
 #SBATCH --ntasks-per-node=4
 #SBATCH --mem=480G
 #SBATCH --cpus-per-task=7
@@ -15,8 +15,9 @@
 
 ###
 # configure the following.
-INPUT_FILE=$translate_input_file
-OUTPUT_FILE=$translate_output_file
+INPUT_FILE=$input
+OUTPUT_FILE=$output
+echo "INPUT_FILE: $INPUT_FILE"
 echo "OUTPUT_FILE: $OUTPUT_FILE"
 
 # jq-like path string to find the prompt within the input jsonl row.
@@ -40,10 +41,11 @@ TEMPERATURE=0
 # Typically on Lumi 70B = 4 GPUs, 34B = 2 GPUs, 8B = 1 GPU
 # --ntasks-per-node should be int(8 / GPUS_PER_TASK)
 #
-MODEL=$model_name
+MODEL=$model
 GPUS_PER_TASK=2     # enough for the model and large batch size
 MAX_MODEL_LEN=4096 # only as much as you think you need for efficiency
 MAX_TOKENS=4096     # max tokens to generate
+echo "MODEL: $MODEL"
 
 # end configuration
 ###################
@@ -64,7 +66,7 @@ module load pytorch/2.5
 
 # export SING_IMAGE=/pfs/lustrep4/appl/local/csc/soft/ai/images/pytorch_2.7.1_lumi_vllm-0.8.5.post1.sif
 export HF_HOME="/scratch/project_462000353/hf_cache"
-# source /scratch/project_462000353/zosaelai2/.dispatcher_venv/bin/activate 
+source /scratch/project_462000353/zosaelai2/.dispatcher_venv/bin/activate 
 pip install git+https://github.com/LumiOpen/dispatcher.git
 
 

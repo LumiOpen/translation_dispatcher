@@ -5,8 +5,7 @@ if [ "$#" -lt 4 ]; then
 fi
 
 # Model to use for translation
-model_path="$1"
-model_name=$(basename "$model_path")
+model_name="$1"
 echo "model_name: $model_name"
 
 # Path to input file
@@ -33,14 +32,14 @@ echo "-----------------------------"
 echo "Running translation pipeline"
 echo "-----------------------------"
 echo "| PREPROCESSING "
-preproc_job_id=$(sbatch --job-name="pre_$trg_lang" --export=input_file=$input_file,translate_input_file=$translate_input_filename,preprocessed_file=$preprocessed_filename,lang=$trg_lang,dataset_type=$dataset_type launch_scripts/launch_preprocess.sh | awk '{print $4}')
+preproc_job_id=$(sbatch --export=input_file=$input_file,translate_input_file=$translate_input_filename,preprocessed_file=$preprocessed_filename,lang=$trg_lang,dataset_type=$dataset_type launch_scripts/launch_preprocess.sh | awk '{print $4}')
 echo "|--> Submitted preprocessing job with ID: $preproc_job_id"
 echo "| TRANSLATION"
-translate_job_id=$(sbatch --dependency=afterok:$preproc_job_id --job-name="translate_${trg_lang}" --export=translate_input_file=$translate_input_filename,translate_output_file=$translate_output_filename launch_scripts/launch_inference.sh | awk '{print $4}')
+translate_job_id=$(sbatch --dependency=afterok:$preproc_job_id --export=ALL,input=$translate_input_filename,output=$translate_output_filename,model=$model_name launch_scripts/launch_inference.sh | awk '{print $4}')
 echo "|--> Submitted translation job with ID: $translate_job_id"
 echo "| POSTPROCESSING"
-postproc_job_id=$(sbatch --dependency=afterok:$translate_job_id --job-name="post_${trg_lang}" --export=translate_output_file=$translate_output_filename,preprocessed_file=$preprocessed_filename,final_output_file=$final_output_filename,dataset_type=$dataset_type launch_scripts/launch_postprocess.sh | awk '{print $4}')
+postproc_job_id=$(sbatch --dependency=afterok:$translate_job_id --export=ALL,output=$translate_output_filename,preprocessed=$preprocessed_filename,final=$final_output_filename,lang=$trg_lang launch_scripts/launch_postprocess.sh | awk '{print $4}')
 echo "|--> Submitted postprocessing job with ID: $postproc_job_id"
-echo "-------------------------------"
+echo "-----------------------------------"
 echo "Translation pipeline jobs SUBMITTED "
-echo "-------------------------------"
+echo "-----------------------------------"

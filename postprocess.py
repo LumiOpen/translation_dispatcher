@@ -93,7 +93,7 @@ def get_translation_length_ratio(translated_text, orig_text, max_len_ratio=1.5):
     return valid_text
 
 def extract_orig_sent_row(row):
-    prompt = row['content']
+    prompt = row['prompt']
     orig_sent = prompt[prompt.rfind(USER_TOKEN)+len(USER_TOKEN):prompt.rfind(ASSISTANT_TOKEN)].strip()
     return orig_sent
 

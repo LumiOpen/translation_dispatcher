@@ -13,7 +13,7 @@ module use /appl/local/csc/modulefiles/
 module load pytorch/2.5
 
 python postprocess.py \
-        --translation_output_file $translate_output_file  \
-        --complete_preprocessed_file $preprocessed_file  \
-        --final_output_file $final_output_file \
-        --dataset_type $dataset_type \  
+        --translation_output_file $output \
+        --complete_preprocessed_file $preprocessed  \
+        --final_output_file $final \
+        --target_lang $lang 

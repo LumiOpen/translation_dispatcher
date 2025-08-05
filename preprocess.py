@@ -12,6 +12,8 @@ DOUBLE_HASH_TEMPLATE = "## Translate into {trg_lang_name}: {src_sent}\n{trg_sent
 
 # ICL examples per language (samples from FLORES-101 and Tatoeba dev sets)
 FLORES_SENT_INDICES = [162, 678, 850, 898, 674, 724, 83, 351]
+# slk corrections: 850, 83, 351 
+# add to few-shot prompt, sentences with instruction-following
 FLORES_PATH = "/scratch/project_462000353/posttraining_data/FLORES-200"
 
 # Language dictionary
@@ -55,6 +57,13 @@ def argparser():
     ap.add_argument('--dataset_type', default='sft', type=str, help="sft or dpo")
     ap.add_argument('--max_samples', default=0, type=int, help="max samples to include, 0 means all")
     ap.add_argument('--total_samples', default=742664, type=int, help="total samples in the original set")
+    ap.add_argument(
+        "--roles_to_translate",
+        type=str,
+        nargs="+",
+        default=None,
+        help="SFT roles to translate",
+    )
     return ap
 
 def format_prompt_user_assistant_template(src_sents, trg_sents):
@@ -163,7 +172,7 @@ def prepare_content_for_translation(content, sample_id, turn_id, column, role, t
                             formatted_prompt = few_shot_prompt + "\n\n" + formatted_para.strip()
                             # print(f"\nFINAL PROMPT:\n{formatted_prompt}")
                             content_all.append({
-                                                'content':formatted_prompt, 
+                                                'content':paragraph, 
                                                 'translate':True,
                                                 'sample_id': sample_id,
                                                 'turn_id': turn_id,
@@ -189,8 +198,9 @@ def main(argv):
     args = argparser().parse_args(argv[1:])
     file = open(args.input_file)
     few_shot_prompt = create_few_shot_prompt(args.trg_lang, args.prompt_format, args.n_shot)
+    roles_to_translate = args.roles_to_translate
     # print(f"\nFEW-SHOT PROMPT:\n{few_shot_prompt}\n")
-    outfile = open(args.preprocessed_file, 'w')
+    preproc_outfile = open(args.preprocessed_file, 'w')
     translation_outfile = open(args.translation_input_file, 'w')
     if args.max_samples > 0:
         # random.sample() samples without replacement
@@ -201,19 +211,19 @@ def main(argv):
             entry = json.loads(line)
             if args.dataset_type == 'sft':
                 for turn_id, turn in enumerate(entry['messages']):
-                    # if turn['role'] == 'user':
-                    content_to_translate, content_all = prepare_content_for_translation(content=entry['messages'][0]['content'], 
-                                                                            sample_id=i+1, # start sample_id at 1 
-                                                                            turn_id=int(turn_id/2)+1, # each turn has 2 parts (user and assistant)
-                                                                            column='messages', # SFT dataset has 1 column: messages
-                                                                            role=turn['role'],
-                                                                            trg_lang=args.trg_lang,
-                                                                            few_shot_prompt=few_shot_prompt,
-                                                                            prompt_format=args.prompt_format)
-                    for content_dict in content_all:
-                        outfile.write(json.dumps(content_dict, ensure_ascii=False) + "\n")
-                    for content_dict in content_to_translate:
-                        translation_outfile.write(json.dumps(content_dict, ensure_ascii=False) + "\n")
+                    if turn['role'] in roles_to_translate:
+                        content_to_translate, content_all = prepare_content_for_translation(content=entry['messages'][turn_id]['content'], 
+                                                                                sample_id=i+1, # start sample_id at 1 
+                                                                                turn_id=int(turn_id/2)+1, # each turn has 2 parts (user and assistant)
+                                                                                column='messages', # SFT dataset has 1 column: messages
+                                                                                role=turn['role'],
+                                                                                trg_lang=args.trg_lang,
+                                                                                few_shot_prompt=few_shot_prompt,
+                                                                                prompt_format=args.prompt_format)
+                        for content_dict in content_all:
+                            preproc_outfile.write(json.dumps(content_dict, ensure_ascii=False) + "\n")
+                        for content_dict in content_to_translate:
+                            translation_outfile.write(json.dumps(content_dict, ensure_ascii=False) + "\n")
             else:
                 # For DPO dataset, we need to translate prompt, chosen, rejected columns
                 columns = ['prompt', 'chosen', 'rejected']
@@ -229,10 +239,10 @@ def main(argv):
                                                                                 few_shot_prompt=few_shot_prompt,
                                                                                 prompt_format=args.prompt_format)
                         for content_dict in content_all:
-                            outfile.write(json.dumps(content_dict, ensure_ascii=False) + "\n")
+                            preproc_outfile.write(json.dumps(content_dict, ensure_ascii=False) + "\n")
                         for content_dict in content_to_translate:
                             translation_outfile.write(json.dumps(content_dict, ensure_ascii=False) + "\n")
-    
+    print(f"Done! Preprocessed data written to {args.preprocessed_file}.\nTranslation input data written to {args.translation_input_file}.\n")
 
 
 if __name__ == '__main__':
