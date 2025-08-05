@@ -4,7 +4,7 @@ This codebase is based on our inference [dispatcher](https://github.com/LumiOpen
 
 ## Launching translation pipeline
 
-`launch_translation_pipeline.sh` will launch the slurm jobs for the translation pipeline automatically.
+`launch_translation_pipeline.sh` will launch the slurm jobs for the translation pipeline (preprocessing, inference, postprocessing) automatically.
 
 **Running the pipeline**
 ```
@@ -12,7 +12,7 @@ sh launch_translation_pipeline.sh <model> <path_to_input_file> <trg_lang> <datas
 sh launch_translation_pipeline.sh LumiOpen/Poro-34B sample_sft.jsonl fin sft
 ```
 
-## Running the pipeline step-by-step
+## Running the pipeline (step-by-step)
 
 ### Preprocessing
 
