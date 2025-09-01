@@ -93,9 +93,12 @@ def get_translation_length_ratio(translated_text, orig_text, max_len_ratio=1.5):
     return valid_text
 
 def extract_orig_sent_row(row):
-    prompt = row['prompt']
-    orig_sent = prompt[prompt.rfind(USER_TOKEN)+len(USER_TOKEN):prompt.rfind(ASSISTANT_TOKEN)].strip()
-    return orig_sent
+    if pd.isnull(row['prompt']):
+        return ""
+    else:
+        prompt = row['prompt']
+        orig_sent = prompt[prompt.rfind(USER_TOKEN)+len(USER_TOKEN):prompt.rfind(ASSISTANT_TOKEN)].strip()
+        return orig_sent
 
 
 def check_turns(row):
@@ -189,11 +192,12 @@ def jsonl_batch_reader(filename, batch_size):
 def main(argv):
     args = argparser().parse_args(argv[1:])
     print(f"target language: {args.target_lang.upper()} | threshold: {args.lang_thresh}")
-    df_all = pd.read_json(open(args.complete_preprocessed_file), lines=True)
-    df_translate = pd.read_json(open(args.translation_output_file), lines=True)
+    df_all = pd.read_json(args.complete_preprocessed_file, lines=True)
+    df_translate = pd.read_json(args.translation_output_file, lines=True)
     if args.dataset_type == 'sft':
         print("Post-processing SFT data")
         df_merged = pd.merge(df_all, df_translate, on=['sample_id', 'line_id'], how='left')
+        print("df_merged:", len(df_merged))
         df_merged['translation'] = df_merged.apply(lambda row: row['translation_y'] if pd.notnull(row['translation_y']) else row['translation_x'], axis=1)
         sample_ids = sorted(df_merged.sample_id.unique())
         # print("Combining translated lines")
@@ -204,6 +208,8 @@ def main(argv):
                 }
         for i, sample_id in enumerate(sample_ids):
             df_sample = df_merged[df_merged.sample_id==sample_id]
+            # print("sample id:",sample_id)
+            # print(df_sample)
             translation = "\n".join(list(df_sample.translation))
             orig_sents = list(df_sample.apply(extract_orig_sent_row, axis=1))
             orig_text = "\n".join(orig_sents)

@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=translation
-#SBATCH --nodes=1
-#SBATCH --partition=dev-g
-#SBATCH --time=00:40:00
+#SBATCH --nodes=4
+#SBATCH --partition=standard-g
+#SBATCH --time=24:00:00
 #SBATCH --ntasks-per-node=4
 #SBATCH --mem=480G
 #SBATCH --cpus-per-task=7
